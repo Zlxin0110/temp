@@ -1,64 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PointCloud Visualization</title>
-    <script type="module">
-        import * as THREE from 'https://threejs.org/build/three.module.js';
-        import {OrbitControls} from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
-
-        // Your point cloud data (replace this with your actual data)
-        const pointsData = /* Your point cloud data here */;
-
-        // Initialize scene
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-
-        // Create a BufferGeometry and add positions to it
-        const geometry = new THREE.BufferGeometry();
-        const positions = new Float32Array(pointsData.length);
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-        // Create a shader material
-        const material = new THREE.ShaderMaterial({
-            vertexShader: /* Your vertex shader code */,
-            fragmentShader: /* Your fragment shader code */,
-            // Add any other material settings here
-        });
-
-        // Create point cloud object
-        const pointCloud = new THREE.Points(geometry, material);
-        scene.add(pointCloud);
-
-        // Set camera position
-        camera.position.z = 5;
-
-        // Add orbit controls
-        const controls = new OrbitControls(camera, renderer.domElement);
-
-        // Animation loop
-        const animate = () => {
-            requestAnimationFrame(animate);
-
-            // Update your point cloud positions here
-            // Example: geometry.attributes.position.array = /* Update positions */;
-            geometry.attributes.position.needsUpdate = true;
-
-            controls.update();
-            renderer.render(scene, camera);
-        };
-
-        animate();
-    </script>
-</head>
-<body>
-</body>
-</html>
--------------------------------------------------------------------------
 // Assuming message is of type sensor_msgs/PointCloud2
 image.subscribe(function (message) {
     // Extract point cloud data from the message
@@ -87,4 +26,38 @@ image.subscribe(function (message) {
     pointCloud.geometry.needsUpdate = true; // Ensure the update is applied
 });
 
+// Initialize scene
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
 
+// Create a BufferGeometry and add positions to it
+const geometry = new THREE.BufferGeometry();
+const positions = new Float32Array(0); // Initialize with an empty array
+geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+// Create point cloud object
+const material = new THREE.PointsMaterial({ color: 0xffffff, size: 0.1 });
+const pointCloud = new THREE.Points(geometry, material);
+scene.add(pointCloud);
+
+// Set camera position
+camera.position.z = 5;
+
+// Add orbit controls
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+// Animation loop
+const animate = () => {
+    requestAnimationFrame(animate);
+
+    // Update your point cloud positions here (no need to assign directly to array)
+    geometry.attributes.position.needsUpdate = true;
+
+    controls.update();
+    renderer.render(scene, camera);
+};
+
+animate();
