@@ -1,63 +1,7 @@
-// Assuming message is of type sensor_msgs/PointCloud2
-image.subscribe(function (message) {
-    // Extract point cloud data from the message
-    const buffer = message.data.buffer;
-    const dv = new DataView(buffer);
-    
-    // Example: Extract x, y, z coordinates
-    const positions = [];
-    const pointStep = message.point_step / Float32Array.BYTES_PER_ELEMENT; // Assuming float32
-    for (let i = 0; i < message.width * message.height; i++) {
-        const base = i * pointStep;
-        const x = dv.getFloat32(base + message.fields[0].offset, message.is_bigendian);
-        const y = dv.getFloat32(base + message.fields[1].offset, message.is_bigendian);
-        const z = dv.getFloat32(base + message.fields[2].offset, message.is_bigendian);
-        positions.push(x, y, z);
-    }
-
-    // Now, 'positions' contains the x, y, z coordinates of the points in the point cloud
-    // You can use this array to update your three.js point cloud geometry
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-
-    // Update your three.js point cloud with the new geometry
-    pointCloud.geometry.dispose(); // Dispose the old geometry
-    pointCloud.geometry = geometry; // Set the new geometry
-    pointCloud.geometry.needsUpdate = true; // Ensure the update is applied
-});
-
-// Initialize scene
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
-// Create a BufferGeometry and add positions to it
-const geometry = new THREE.BufferGeometry();
-const positions = new Float32Array(0); // Initialize with an empty array
-geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-// Create point cloud object
-const material = new THREE.PointsMaterial({ color: 0xffffff, size: 0.1 });
-const pointCloud = new THREE.Points(geometry, material);
-scene.add(pointCloud);
-
-// Set camera position
-camera.position.z = 5;
-
-// Add orbit controls
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
-
-// Animation loop
-const animate = () => {
-    requestAnimationFrame(animate);
-
-    // Update your point cloud positions here (no need to assign directly to array)
-    geometry.attributes.position.needsUpdate = true;
-
-    controls.update();
-    renderer.render(scene, camera);
-};
-
-animate();
+ros2 topic pub lidar_points sensor_msgs/PointCloud2 \
+"{header: {stamp: {sec: 0, nanosec: 0}, frame_id: 'lidar_frame'}, \
+ height: 1, width: 2, is_dense: false, is_bigendian: false, \
+ fields: [{name: 'x', offset: 0, datatype: 7, count: 1}, \
+          {name: 'y', offset: 4, datatype: 7, count: 1}, \
+          {name: 'z', offset: 8, datatype: 7, count: 1}], \
+ data: [0, 1, 2, 3, 4, 5]}" -r 1
