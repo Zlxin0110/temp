@@ -51,9 +51,7 @@ fields: [
 
 
 
-nnnnn
-
-<!DOCTYPE html>
+nnnnn<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -88,18 +86,39 @@ nnnnn
         function writeCSV() {
             const csvContent = 'Name,Age,Location\nJohn,25,New York\nJane,30,San Francisco';
 
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'sample.csv';
-            link.click();
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const writer = new FileWriter();
+
+                writer.onwriteend = function () {
+                    console.log('Write completed.');
+                };
+
+                writer.onerror = function (e) {
+                    console.error('Write failed:', e);
+                };
+
+                // Use createWriter to get a FileWriter object
+                file.createWriter(function (writer) {
+                    writer.seek(writer.length); // Move the cursor to the end of the file
+
+                    const blob = new Blob([csvContent], { type: 'text/csv' });
+
+                    writer.write(blob);
+                }, errorHandler);
+            } else {
+                console.error('No file selected.');
+            }
+        }
+
+        function errorHandler(error) {
+            console.error('File operation failed:', error);
         }
     </script>
 </body>
 </html>
-
-
-
 
 
 
