@@ -371,9 +371,7 @@ function CSVToArray(csvData, delimiter = ',') {
 =========####
 
 
-如果你想在代码中循环指定文件名并读取相应的 CSV 文件，可以稍作修改。以下是一个例子，它演示了如何循环读取文件名 `point1.csv` 到 `pointN.csv`：
 
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -404,15 +402,22 @@ function readCSVFiles() {
 }
 
 function readCSVFile(fileName) {
+  const xhr = new XMLHttpRequest();
   const filePath = fileName;  // Assuming the files are in the same directory as the HTML file
 
-  fetch(filePath)
-    .then(response => response.text())
-    .then(csvData => {
-      const dataArray = CSVToArray(csvData);
-      console.log(`Data from ${fileName}:`, dataArray);
-    })
-    .catch(error => console.error(`Error reading ${fileName}:`, error));
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === XMLHttpRequest.DONE) {
+      if (xhr.status === 200) {
+        const dataArray = CSVToArray(xhr.responseText);
+        console.log(`Data from ${fileName}:`, dataArray);
+      } else {
+        console.error(`Error reading ${fileName}: ${xhr.status}`);
+      }
+    }
+  };
+
+  xhr.open('GET', filePath, true);
+  xhr.send();
 }
 
 // CSVToArray function remains the same as in the previous example
@@ -421,8 +426,6 @@ function readCSVFile(fileName) {
 
 </body>
 </html>
-```
 
-在这个例子中，用户需要输入文件的数量，然后通过循环生成文件名并调用 `readCSVFile` 函数读取每个文件。请确保 HTML 文件和 CSV 文件在相同的目录下，并使用相对路径。如果浏览器提示 CORS（跨源资源共享）错误，说明浏览器不允许直接从本地文件系统读取文件。在这种情况下，你可能需要考虑使用本地服务器（如 Live Server）运行你的应用。
 
 
