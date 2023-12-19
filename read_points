@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV File Reader</title>
+</head>
+
+<body>
+
+    <button id="readCSVBtn">Read CSV Files</button>
+    <div id="output"></div>
+
+    <script>
+        document.getElementById('readCSVBtn').addEventListener('click', async function () {
+            // 指定文件数量n
+            var n = 3; // 你可以根据需要修改n的值
+
+            // 创建一个数组用于存储所有的点数据
+            var allPoints = [];
+
+            // 循环读取每个CSV文件
+            for (var i = 1; i <= n; i++) {
+                var fileName = `point${i}.csv`;
+
+                try {
+                    // 使用fetch读取CSV文件内容
+                    var response = await fetch(fileName);
+
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch ${fileName}`);
+                    }
+
+                    var fileContent = await response.text();
+
+                    // 处理文件内容，可以在这里进行进一步的操作
+                    var points = parseCSV(fileContent);
+
+                    // 将点数据添加到总数组中
+                    allPoints.push({ fileName: fileName, data: points });
+                } catch (error) {
+                    console.error(`Error reading ${fileName}:`, error);
+                }
+            }
+
+            // 输出所有点数据
+            console.log('All Points:', allPoints);
+
+            // 将点的数据显示在网页上
+            displayPoints(allPoints);
+        });
+
+        // 解析CSV文件内容并返回数组
+        function parseCSV(content) {
+            var lines = content.split('\n');
+            var points = [];
+
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].trim();
+
+                if (line === '') continue;
+
+                var coordinates = line.split(',');
+                var x = parseFloat(coordinates[0]);
+                var y = parseFloat(coordinates[1]);
+                var z = parseFloat(coordinates[2]);
+
+                points.push({ x: x, y: y, z: z });
+            }
+
+            return points;
+        }
+
+        // 将点的数据显示在网页上
+        function displayPoints(allPoints) {
+            var outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = ''; // 清空之前的内容
+
+            // 创建一个表格
+            var table = document.createElement('table');
+
+            // 遍历每个文件的点数据
+            allPoints.forEach(function (fileData) {
+                var fileName = fileData.fileName;
+                var points = fileData.data;
+
+                // 创建表头
+                var headerRow = table.insertRow();
+                var fileNameCell = headerRow.insertCell();
+                fileNameCell.textContent = `Points from ${fileName}`;
+
+                // 创建数据行
+                points.forEach(function (point) {
+                    var dataRow = table.insertRow();
+                    var xCell = dataRow.insertCell();
+                    var yCell = dataRow.insertCell();
+                    var zCell = dataRow.insertCell();
+
+                    xCell.textContent = point.x;
+                    yCell.textContent = point.y;
+                    zCell.textContent = point.z;
+                });
+            });
+
+            // 将表格添加到输出div中
+            outputDiv.appendChild(table);
+        }
+    </script>
+
+</body>
+
+</html>
