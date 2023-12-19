@@ -322,3 +322,55 @@ function readCSVFile(fileName) {
 在这个例子中，用户需要输入文件的数量，然后通过循环生成文件名并调用readCSVFile函数读取每个文件。注意，由于安全性原因，直接在浏览器中使用fetch读取本地文件时，可能需要在服务器上运行该代码，而不是直接在文件系统中打开 HTML 文件。
 
 
+mmmmmmmmmmmmmmmmmmmm
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Read CSV File</title>
+</head>
+<body>
+
+<input type="file" id="csvFileInput" accept=".csv">
+<button onclick="handleFile()">Read CSV</button>
+
+<script>
+function handleFile() {
+  const fileInput = document.getElementById('csvFileInput');
+  
+  if (!fileInput.files.length) {
+    alert('Please select a CSV file.');
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function (e) {
+    const csvData = e.target.result;
+    const dataArray = CSVToArray(csvData);
+
+    // 现在dataArray中包含了CSV文件的数据，你可以在这里进行进一步的处理
+    console.log(dataArray);
+  };
+
+  reader.readAsText(file);
+}
+
+// 将CSV数据转换为数组
+function CSVToArray(csvData, delimiter = ',') {
+  const rows = csvData.split('\n');
+  return rows.map(row => row.split(delimiter));
+}
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
