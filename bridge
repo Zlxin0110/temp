@@ -404,7 +404,11 @@ function readCSVFile(fileName) {
   fileInput.type = 'file';
   fileInput.accept = '.csv';
   fileInput.addEventListener('change', (event) => handleFile(event, fileName));
+
+  // Trigger user interaction
+  document.body.appendChild(fileInput);  // Append to body
   fileInput.click();
+  document.body.removeChild(fileInput);  // Remove after click
 }
 
 function handleFile(event, fileName) {
@@ -426,5 +430,6 @@ function handleFile(event, fileName) {
 
 </body>
 </html>
+
 
 
