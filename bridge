@@ -154,3 +154,53 @@ nnnnn<!DOCTYPE html>
 </html>
 
 
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV File Handling</title>
+</head>
+<body>
+    <input type="file" id="fileInput" accept=".csv">
+    <button onclick="readCSV()">Read CSV</button>
+    <button onclick="writeCSV()">Write CSV</button>
+
+    <script>
+        function readCSV() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const content = e.target.result;
+                    console.log('Read content:', content);
+                    // You can parse and process the CSV content here
+                };
+
+                reader.readAsText(file);
+            } else {
+                console.error('No file selected.');
+            }
+        }
+
+        function writeCSV() {
+            const csvContent = 'Name,Age,Location\nJohn,25,New York\nJane,30,San Francisco';
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'sample.csv';
+            link.click();
+        }
+    </script>
+</body>
+</html>
+
+
