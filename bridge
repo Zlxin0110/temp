@@ -370,8 +370,6 @@ function CSVToArray(csvData, delimiter = ',') {
 
 =========####
 
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -402,22 +400,24 @@ function readCSVFiles() {
 }
 
 function readCSVFile(fileName) {
-  const xhr = new XMLHttpRequest();
-  const filePath = fileName;  // Assuming the files are in the same directory as the HTML file
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = '.csv';
+  fileInput.addEventListener('change', (event) => handleFile(event, fileName));
+  fileInput.click();
+}
 
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState === XMLHttpRequest.DONE) {
-      if (xhr.status === 200) {
-        const dataArray = CSVToArray(xhr.responseText);
-        console.log(`Data from ${fileName}:`, dataArray);
-      } else {
-        console.error(`Error reading ${fileName}: ${xhr.status}`);
-      }
-    }
+function handleFile(event, fileName) {
+  const file = event.target.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function (e) {
+    const csvData = e.target.result;
+    const dataArray = CSVToArray(csvData);
+    console.log(`Data from ${fileName}:`, dataArray);
   };
 
-  xhr.open('GET', filePath, true);
-  xhr.send();
+  reader.readAsText(file);
 }
 
 // CSVToArray function remains the same as in the previous example
@@ -426,6 +426,5 @@ function readCSVFile(fileName) {
 
 </body>
 </html>
-
 
 
