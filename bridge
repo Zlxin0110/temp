@@ -163,12 +163,11 @@ nnnnn<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSV File Handling</title>
+    <title>Read CSV</title>
 </head>
 <body>
     <input type="file" id="fileInput" accept=".csv">
     <button onclick="readCSV()">Read CSV</button>
-    <button onclick="writeCSV()">Write CSV</button>
 
     <script>
         function readCSV() {
@@ -180,8 +179,9 @@ nnnnn<!DOCTYPE html>
 
                 reader.onload = function (e) {
                     const content = e.target.result;
-                    console.log('Read content:', content);
-                    // You can parse and process the CSV content here
+                    const dataArray = parseCSV(content);
+
+                    console.log('Read data:', dataArray);
                 };
 
                 reader.readAsText(file);
@@ -190,17 +190,26 @@ nnnnn<!DOCTYPE html>
             }
         }
 
-        function writeCSV() {
-            const csvContent = 'Name,Age,Location\nJohn,25,New York\nJane,30,San Francisco';
+        function parseCSV(csvContent) {
+            const lines = csvContent.split('\n');
+            const dataArray = [];
 
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'sample.csv';
-            link.click();
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+
+                if (line.length > 0) {
+                    const values = line.split(',');
+                    const row = values.map(value => parseFloat(value));
+                    dataArray.push(row);
+                }
+            }
+
+            return dataArray;
         }
     </script>
 </body>
 </html>
+
+
 
 
