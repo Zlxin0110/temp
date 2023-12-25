@@ -111,3 +111,47 @@
 </body>
 
 </html>
+
+
+
+zlx@zlx-VirtualBox:/etc/netplan$ cat 01-network-manager-all.yaml 
+# Let NetworkManager manage all devices on this system
+network:
+  version: 2
+  renderer:networkd
+  ethernets:
+    enp0s3:
+      dhcp4:true
+
+    enp0s8:
+      dhcp4:false
+      addresses:[192.168.1.3/24]
+      gateway4:192.168.1.1
+      nameservers:
+        addresses:[8.8.8.8,8.8.4.4]
+
+ NetworkManager.service - Network Manager
+     Loaded: loaded (/lib/systemd/system/NetworkManager.service; enabled; vendor preset: enabled)
+     Active: active (running) since Mon 2023-12-25 13:18:26 JST; 5min ago
+       Docs: man:NetworkManager(8)
+   Main PID: 575 (NetworkManager)
+      Tasks: 3 (limit: 9430)
+     Memory: 10.6M
+        CPU: 296ms
+     CGroup: /system.slice/NetworkManager.service
+             └─575 /usr/sbin/NetworkManager --no-daemon
+
+12月 25 13:18:27 zlx-VirtualBox NetworkManager[575]: <info>  [1703477907.3934] dhcp-init: Using DHCP client 'internal'
+12月 25 13:18:27 zlx-VirtualBox NetworkManager[575]: <info>  [1703477907.3960] device (lo): carrier: link connected
+12月 25 13:18:27 zlx-VirtualBox NetworkManager[575]: <info>  [1703477907.4077] manager: (lo): new Generic device (/org/freedesktop/NetworkManager/Devices/1)
+12月 25 13:18:27 zlx-VirtualBox NetworkManager[575]: <info>  [1703477907.4263] manager: (enp0s3): new Ethernet device (/org/freedesktop/NetworkManager/Devices/2)
+12月 25 13:18:27 zlx-VirtualBox NetworkManager[575]: <info>  [1703477907.4338] manager: (enp0s8): new Ethernet device (/org/freedesktop/NetworkManager/Devices/3)
+12月 25 13:18:27 zlx-VirtualBox NetworkManager[575]: <info>  [1703477907.4423] failed to open /run/network/ifstate
+12月 25 13:18:27 zlx-VirtualBox NetworkManager[575]: <info>  [1703477907.4584] manager: startup complete
+12月 25 13:18:27 zlx-VirtualBox NetworkManager[575]: <info>  [1703477907.5129] modem-manager: ModemManager available
+12月 25 13:18:41 zlx-VirtualBox NetworkManager[575]: <info>  [1703477921.0055] agent-manager: agent[0cc6b89a3cdeaa03,:1.38/org.gnome.Shell.NetworkAgent/127]: agent regist>
+12月 25 13:18:58 zlx-VirtualBox NetworkManager[575]: <info>  [1703477938.0866] agent-manager: agent[e9f4cc474a2a0bb9,:1.78/org.gnome.Shell.NetworkAgent/1000]: agent regis>
+
+~
+
+
