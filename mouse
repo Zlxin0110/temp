@@ -1,4 +1,41 @@
-    "imports": {
-      "three": "https://cdn.skypack.dev/three@0.152.2",
-      "three-orbitcontrols": "https://cdn.skypack.dev/three@0.152.2/examples/js/controls/OrbitControls.js"
-    }
+import * as THREE from 'three';
+import { OrbitControls } from 'three-orbitcontrols';
+
+// 初始化 Three.js 相关对象
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(0, 0, 10);
+
+const scene = new THREE.Scene();
+
+const geometry = new THREE.BufferGeometry(); // 使用 BufferGeometry 存储点云数据
+const material = new THREE.PointsMaterial({ color: 0x00ff00, size: 0.1 });
+const pointCloud = new THREE.Points(geometry, material);
+
+scene.add(pointCloud);
+
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function subscribePointCloud(data) {
+  // 处理 ROS2 发送过来的点云数据
+  // 假设 data 是一个包含点云信息的数据结构
+
+  // 更新 Three.js 的点云对象
+  const positions = new Float32Array(data.points); // 假设数据格式为包含点的数组
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+  // 通知 Three.js 更新
+  geometry.attributes.position.needsUpdate = true;
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+animate();
