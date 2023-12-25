@@ -1,0 +1,4 @@
+    "imports": {
+      "three": "https://cdn.skypack.dev/three@0.152.2",
+      "three-orbitcontrols": "https://cdn.skypack.dev/three@0.152.2/examples/js/controls/OrbitControls.js"
+    }
