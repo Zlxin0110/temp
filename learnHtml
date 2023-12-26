@@ -24,11 +24,45 @@
 </html>
 // External JavaScript file
 
+
+
+
+
+
+
+
+// External JavaScript file
+
 // Get the canvas element and its 2d context
 const canvas = document.getElementById("myCanvas");
 const ctx = canvas.getContext("2d");
 
 // Function to draw a square on the canvas
 function drawSquare() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
     ctx.fillStyle = getColor();
-    ctx.fillRect(50
+    ctx.fillRect(50, 50, 100, 100);
+}
+
+// Function to draw a circle on the canvas
+function drawCircle() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+    ctx.fillStyle = getColor();
+    ctx.beginPath();
+    ctx.arc(200, 150, 50, 0, 2 * Math.PI);
+    ctx.fill();
+}
+
+// Function to get the selected color from the color input
+function getColor() {
+    const colorInput = document.getElementById("colorInput");
+    return colorInput.value;
+}
+
+// Function to change the color on user input
+function changeColor() {
+    // You can perform additional actions here if needed
+    // For example, update a color preview element
+    // But for this example, we'll simply redraw the current shape with the new color
+    drawSquare(); // You can also use drawCircle() if needed
+}
