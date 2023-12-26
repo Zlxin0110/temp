@@ -22,3 +22,13 @@
     </div>
 </body>
 </html>
+// External JavaScript file
+
+// Get the canvas element and its 2d context
+const canvas = document.getElementById("myCanvas");
+const ctx = canvas.getContext("2d");
+
+// Function to draw a square on the canvas
+function drawSquare() {
+    ctx.fillStyle = getColor();
+    ctx.fillRect(50
