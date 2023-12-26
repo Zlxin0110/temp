@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Drawing Example</title>
+    <!-- Link to external JavaScript file -->
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div id="controls">
+        <!-- Left side controls (buttons, labels, textboxes, etc.) -->
+        <button onclick="drawSquare()">Draw Square</button>
+        <button onclick="drawCircle()">Draw Circle</button>
+        <label for="colorInput">Choose color:</label>
+        <input type="color" id="colorInput" onchange="changeColor()">
+    </div>
+
+    <div id="canvasContainer">
+        <!-- Right side canvas -->
+        <canvas id="myCanvas" width="400" height="300"></canvas>
+    </div>
+</body>
+</html>
