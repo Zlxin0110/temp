@@ -1,68 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canvas Drawing Example</title>
-    <!-- Link to external JavaScript file -->
-    <script src="script.js" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      display: flex;
+      height: 100vh;
+      margin: 0;
+    }
+
+    #leftPanel {
+      display: flex;
+      flex-direction: column;
+      width: 25%;
+      padding: 20px;
+      background-color: #f0f0f0;
+    }
+
+    .group {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .group button, .group label {
+      margin-right: 10px;
+    }
+
+    #rightPanel {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    canvas {
+      border: 1px solid #ccc;
+    }
+  </style>
+  <title>布局示例</title>
 </head>
 <body>
-    <div id="controls">
-        <!-- Left side controls (buttons, labels, textboxes, etc.) -->
-        <button onclick="drawSquare()">Draw Square</button>
-        <button onclick="drawCircle()">Draw Circle</button>
-        <label for="colorInput">Choose color:</label>
-        <input type="color" id="colorInput" onchange="changeColor()">
-    </div>
 
-    <div id="canvasContainer">
-        <!-- Right side canvas -->
-        <canvas id="myCanvas" width="400" height="300"></canvas>
+  <div id="leftPanel">
+    <div class="group">
+      <button id="button1">按钮1</button>
+      <label for="button1">标签1</label>
     </div>
+    <div class="group">
+      <button id="button2">按钮2</button>
+      <label for="button2">标签2</label>
+    </div>
+  </div>
+
+  <div id="rightPanel">
+    <canvas id="mapCanvas" width="400" height="300"></canvas>
+  </div>
+
 </body>
 </html>
-// External JavaScript file
-
-
-
-
-
-
-
-
-// External JavaScript file
-
-// Get the canvas element and its 2d context
-const canvas = document.getElementById("myCanvas");
-const ctx = canvas.getContext("2d");
-
-// Function to draw a square on the canvas
-function drawSquare() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-    ctx.fillStyle = getColor();
-    ctx.fillRect(50, 50, 100, 100);
-}
-
-// Function to draw a circle on the canvas
-function drawCircle() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-    ctx.fillStyle = getColor();
-    ctx.beginPath();
-    ctx.arc(200, 150, 50, 0, 2 * Math.PI);
-    ctx.fill();
-}
-
-// Function to get the selected color from the color input
-function getColor() {
-    const colorInput = document.getElementById("colorInput");
-    return colorInput.value;
-}
-
-// Function to change the color on user input
-function changeColor() {
-    // You can perform additional actions here if needed
-    // For example, update a color preview element
-    // But for this example, we'll simply redraw the current shape with the new color
-    drawSquare(); // You can also use drawCircle() if needed
-}
