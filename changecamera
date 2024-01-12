@@ -1,10 +1,4 @@
-理解，以下是ROS 2的安装步骤，适用于Humble版本。请确保在执行这些步骤之前，你的系统是更新的。
-
-添加 ROS 2 源：
-
-bash
-Copy code
-sudo sh -c 'echo "deb [arch=amd64,arm64] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2-latest.list'
+sudo sh -c 'echo "deb [arch=amd64,arm64] http://packages.ros.org/ros2/ubuntu humble main" > /etc/apt/sources.list.d/ros2-latest.list'
 添加 GPG key：
 
 bash
@@ -22,25 +16,3 @@ sudo apt install -y ros-humble-desktop
 bash
 Copy code
 source /opt/ros/humble/setup.bash
-创建并进入工作空间：
-
-bash
-Copy code
-mkdir -p ~/ros2_ws/src
-cd ~/ros2_ws
-下载 rosbridge_suite：
-
-bash
-Copy code
-git clone https://github.com/ros2/rosbridge_suite.git src/rosbridge_suite
-构建工作空间：
-
-bash
-Copy code
-colcon build
-设置环境变量：
-
-bash
-Copy code
-source ~/ros2_ws/install/local_setup.bash
-现在，你应该能够成功安装 ROS 2 Humble 版本以及 rosbridge_suite。如果遇到问题，请提供相关的错误信息，以便更好地帮助你。
