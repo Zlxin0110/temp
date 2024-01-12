@@ -1,0 +1,66 @@
+在使用Three.js绘制LiDAR点云时，优化点云绘制速度的一个重要方面是只绘制当前相机视野内的点云，而不是整个点云数据集。这可以通过在渲染循环中检查点是否在相机视锥体内来实现。
+以下是一个简单的示例代码，演示如何在Three.js中优化LiDAR点云的绘制，只绘制相机视野内的点云：
+
+// 创建场景、相机和渲染器
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// 创建LiDAR点云对象
+var lidarPointCloud; // 你的LiDAR点云数据对象
+
+// 将LiDAR点云添加到场景
+scene.add(lidarPointCloud);
+
+// 更新相机的视锥体
+function updateCameraFrustum() {
+  var frustum = new THREE.Frustum();
+  var cameraViewProjectionMatrix = new THREE.Matrix4();
+  camera.updateMatrixWorld();
+  camera.matrixWorldInverse.getInverse(camera.matrixWorld);
+  cameraViewProjectionMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+  frustum.setFromMatrix(cameraViewProjectionMatrix);
+  return frustum;
+}
+
+// 渲染循环
+function animate() {
+  requestAnimationFrame(animate);
+
+  // 更新相机视锥体
+  var frustum = updateCameraFrustum();
+
+  // 遍历所有LiDAR点云数据，只绘制在相机视锥体内的点云
+  for (var i = 0; i < lidarPointCloud.points.length; i++) {
+    var point = lidarPointCloud.points[i];
+
+    // 检查点是否在相机视锥体内
+    if (frustum.containsPoint(point.position)) {
+      point.visible = true;
+    } else {
+      point.visible = false;
+    }
+  }
+
+  // 渲染场景
+  renderer.render(scene, camera);
+}
+
+// 监听窗口变化
+window.addEventListener('resize', function () {
+  var newWidth = window.innerWidth;
+  var newHeight = window.innerHeight;
+
+  camera.aspect = newWidth / newHeight;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(newWidth, newHeight);
+});
+
+// 启动渲染循环
+animate();
+
+
+请注意，上述代码中的lidarPointCloud表示你的LiDAR点云数据对象，你需要根据实际情况替换成你的数据对象。在渲染循环中，我们遍历所有LiDAR点云数据，并检查每个点是否在相机视锥体内。只有在视锥体内的点云才会被设置为可见，从而减少不必要的绘制，提高渲染性能。
