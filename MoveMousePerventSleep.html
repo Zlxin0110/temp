@@ -1,43 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Prevent Sleep and Move Mouse</title>
-</head>
-<body>
+==========> ROS２インストール　<==========
+aptリポジトリの追加
+sudo apt update && sudo apt install curl gnupg lsb-release
+sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
 
-<script>
-  // 阻止计算机休眠
-  function preventSleep() {
-    // 在浏览器窗口处于活动状态时，阻止计算机休眠
-    const wakeLock = navigator.wakeLock.request('screen');
+リポジトリをsource listに追加
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(source /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
 
-    wakeLock.then(() => {
-      console.log('Screen wake lock acquired');
-    }).catch((error) => {
-      console.error('Error acquiring screen wake lock:', error);
-    });
+動作テスト
+Terminal1:
+source /opt/ros/humble/setup.bash
+ros2 run demo_nodes_cpp talker
+Terminal2:
+source /opt/ros/humble/setup.bash
+ros2 run demo_nodes_py listener
 
-    // 定时刷新以保持计算机活跃
-    setInterval(() => {
-      // 移动鼠标
-      moveMouse();
-    }, 5000); // 每 5 秒执行一次
-  }
-
-  // 移动鼠标
-  function moveMouse() {
-    // 在这里实现模拟鼠标移动的代码
-    // 这里只是输出一条信息，具体的模拟鼠标移动逻辑需要根据实际情况进行编写
-    console.log('Moving mouse...');
-  }
-
-  // 页面加载完成后调用阻止休眠函数
-  window.onload = function () {
-    preventSleep();
-  };
-</script>
-
-</body>
-</html>
+環境設定
+echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+source .bashrc
+============================
