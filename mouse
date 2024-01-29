@@ -1,41 +1,58 @@
-import * as THREE from 'three';
-import { OrbitControls } from 'three-orbitcontrols';
 
-// 初始化 Three.js 相关对象
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 0, 10);
+source ./devel/setup/bash
+rosrun helloworld helloworld_c
 
-const scene = new THREE.Scene();
 
-const geometry = new THREE.BufferGeometry(); // 使用 BufferGeometry 存储点云数据
-const material = new THREE.PointsMaterial({ color: 0x00ff00, size: 0.1 });
-const pointCloud = new THREE.Points(geometry, material);
+python3 -m http.server 8080 --bind 127.0.0.1
 
-scene.add(pointCloud);
+roscore
+roslaunch rosbridge_server rosbridge_websocket.launch
+python3 ros_to_rosbridge.py
 
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+source ./devel/setup/bash
+■テストノードを新規追加しました。
+１秒周期でTopicA、TopicBをPubします。
 
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
+■下記の順番でコマンドを実行しました。
+・周期でTopicをPubする。
+　rosrun helloworld helloworld_c
+・HTTP server起動
+　python3 -m http.server 8080 --bind 127.0.0.1	
+・roscore起動
+　roscore
+・rosbridge Server起動
+　roslaunch rosbridge_server rosbridge_websocket.launch
+・rosbridge起動
+　python3 ros_to_rosbridge.py
 
-function subscribePointCloud(data) {
-  // 处理 ROS2 发送过来的点云数据
-  // 假设 data 是一个包含点云信息的数据结构
+■conf/config.yamlファイルの設定＆確認結果
+①topicB：exclude、topicA：include
+id : robot_a
+exclude_topics:
+   略...
+   /topicB
+include_topics:
+  略...
+  # - name : /topicA
+  #   type : std_msgs/String
 
-  // 更新 Three.js 的点云对象
-  const positions = new Float32Array(data.points); // 假设数据格式为包含点的数组
-  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+→実行結果：ブラウザがTopicAとTopicBをサブスクライブされました
+　python3 ros_to_rosbridge.pyのログ：
+　$ python3 rosbridge_to_ros.py 
+　[INFO] [1706544649.435149]: 
+　[INFO] [1706544649.439502]: Remote Host : [127.0.0.1:9090]
+　[INFO] [1706544649.448079]: 
+　[INFO] [1706544649.450035]: Make below topics bridge
+　[INFO] [1706544649.493712]: Bridge Sub:[/topicA] => Local Pub:[/robot_a/topicA]
 
-  // 通知 Three.js 更新
-  geometry.attributes.position.needsUpdate = true;
-}
-
-function animate() {
-  requestAnimationFrame(animate);
-  controls.update();
-  renderer.render(scene, camera);
-}
-
-animate();
+②topicA、topicAを設定しない。
+→実行結果：ブラウザがTopicAとTopicBもサブスクライブできました。
+　python3 ros_to_rosbridge.pyのログ：
+　$ python3 rosbridge_to_ros.py 
+　[INFO] [1706543779.745576]: 
+　[INFO] [1706543779.748953]: Remote Host : [127.0.0.1:9090]
+　[INFO] [1706543779.750643]: 
+　[INFO] [1706543779.752333]: Make below topics bridge
+　[INFO] [1706543779.811986]: Bridge Sub:[/connected_clients] => Local Pub:[/robot_a/connected_clients]
+　[INFO] [1706543779.817209]: Bridge Sub:[/topicA] => Local Pub:[/robot_a/topicA]
+　[INFO] [1706543779.824718]: Bridge Sub:[/topicB] => Local Pub:[/robot_a/topicB]
