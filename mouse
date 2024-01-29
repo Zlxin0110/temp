@@ -10,6 +10,10 @@ roslaunch rosbridge_server rosbridge_websocket.launch
 python3 ros_to_rosbridge.py
 
 source ./devel/setup/bash
+
+ROS1で以下の実験を行いましたが、topicのincludeやexclude機能を実現できませんでした。
+おそらく私の使用方法が誤っている可能性があり、現在調査中です。
+
 ■テストノードを新規追加しました。
 １秒周期でTopicA、TopicBをPubします。
 
@@ -23,7 +27,7 @@ source ./devel/setup/bash
 ・rosbridge Server起動
 　roslaunch rosbridge_server rosbridge_websocket.launch
 ・rosbridge起動
-　python3 ros_to_rosbridge.py
+　python3 rosbridge_to_ros.py 
 
 ■conf/config.yamlファイルの設定＆確認結果
 ①topicB：exclude、topicA：include
