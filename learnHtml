@@ -1,63 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      display: flex;
-      height: 100vh;
-      margin: 0;
+#include "ros/ros.h"
+#include "std_msgs/String.h"
+
+int main(int argc, char **argv)
+{
+    // 初始化ROS节点
+    ros::init(argc, argv, "simple_publisher");
+    
+    // 创建ROS节点句柄
+    ros::NodeHandle nh;
+
+    // 创建发布者，发布话题A
+    ros::Publisher topicAPub = nh.advertise<std_msgs::String>("topicA", 10);
+
+    // 创建发布者，发布话题B
+    ros::Publisher topicBPub = nh.advertise<std_msgs::String>("topicB", 10);
+
+    // 设置循环频率
+    ros::Rate loop_rate(1); // 1Hz
+
+    while (ros::ok())
+    {
+        // 创建ROS消息
+        std_msgs::String msg;
+        msg.data = "Hello, TopicA!";
+
+        // 发布消息到话题A
+        topicAPub.publish(msg);
+
+        // 等待直到下一个周期
+        loop_rate.sleep();
+
+        // 创建另一个消息
+        msg.data = "Hello, TopicB!";
+
+        // 发布消息到话题B
+        topicBPub.publish(msg);
+
+        // 等待直到下一个周期
+        loop_rate.sleep();
     }
 
-    #leftPanel {
-      display: flex;
-      flex-direction: column;
-      width: 25%;
-      padding: 20px;
-      background-color: #f0f0f0;
-    }
-
-    .group {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .group button, .group label {
-      margin-right: 10px;
-    }
-
-    #rightPanel {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    canvas {
-      border: 1px solid #ccc;
-    }
-  </style>
-  <title>布局示例</title>
-</head>
-<body>
-
-  <div id="leftPanel">
-    <div class="group">
-      <button id="button1">按钮1</button>
-      <label for="button1">标签1</label>
-    </div>
-    <div class="group">
-      <button id="button2">按钮2</button>
-      <label for="button2">标签2</label>
-    </div>
-  </div>
-
-  <div id="rightPanel">
-    <canvas id="mapCanvas" width="400" height="300"></canvas>
-  </div>
-
-</body>
-</html>
+    return 0;
+}
