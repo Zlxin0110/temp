@@ -1,0 +1,157 @@
+@startuml qwe
+
+participant browser
+
+box "roslib"
+participant Ros as roslis_ros <<(1,#ADD1B2)>>
+participant Topic <<(2,#ADD1B2)>>
+participant ServiceResponse  <<(3,#ADD1B2)>>
+end box
+
+box "rosbridge_server"
+participant RosbridgeWebSocket <<(4,#ADD1B2)>>
+participant RosbridgeProtocol as Protocol <<(5,#ADD1B2)>>
+participant Subscribe <<(6,#ADD1B2)>>
+participant SubscriberManager <<(7,#ADD1B2)>>
+end box
+'//④RosbridgeWebSocket rosbridge_server/src/rosbridge_server/autobahn_websocket.py
+'//⑤RosbridgeProtocol  (親)rosbridge_library/src/rosbridge_library/protocol.py
+'//                     (子)rosbridge_library/src/rosbridge_library/rosbridge_protocol.py
+'//⑥Subscribe          rosbridge_library/src/rosbridge_library/capabilities/subscribe.py
+'//⑦SubscriberManager  rosbridge_library/src/rosbridge_library/internal/subscribers.py
+
+'/接続
+group Connect WebSocket Server
+browser -> roslis_ros: ros = new ROSLIB.Ros()
+rnote over roslis_ros
+Ros.prototype.connect = function(url)
+・Connect to the specified WebSocket
+endrnote
+roslis_ros -> RosbridgeWebSocket:sock = new WebSocket(url)
+
+rnote over RosbridgeWebSocket
+RosbridgeWebSocket::onOpen(self)
+・init paramenter
+・create IncomingQueue object
+  →create queue save browser msg
+  →監視スレッドrun()を立ち上がる
+endrnote
+browser -> Topic: topic = new ROSLIB.Topic()
+end
+
+'/トピックのサブすクライマ
+group Topic Subscription
+rnote over Topic
+function Topic(options)
+・Publish and/or subscribe to a topic in ROS.
+endrnote
+
+Topic -> roslis_ros: that.ros.callOnConnection(message)
+rnote over roslis_ros
+Ros.prototype.callOnConnection = function(message)
+・ Send an encoded message over the WebSocket.
+　→Ros.prototype.sendEncodedMessage
+endrnote
+roslis_ros -> RosbridgeWebSocket:socket.send(msg)
+
+rnote over RosbridgeWebSocket
+RosbridgeWebSocket::onMessage()
+・受信したmsgをqueueに保存
+  →self.incoming_queue.push(message)
+endrnote
+loop listen IncomingQueue::queue
+    alt queue != null
+        RosbridgeWebSocket -> Protocol :protocol.incoming(msg)
+    end
+end
+
+rnote over Protocol
+def def incoming(self, message_string="")
+・Process an incoming message from the client
+endrnote
+alt operation == Subscribe
+    Protocol -> Subscribe : self.operations[op](msg)
+end
+
+rnote over Subscribe
+Subscribe::incoming(self, message_string="")
+・Create a subscription for the specified client on the specified topic,
+　with callback publish
+　→subscriptions[topic] = Subscription(client_id, topic, cb)」
+　<b><font color="#FF0000">※上記のcbはpublish関数(cb = partial(self.publish, topic))</font></b>
+・Register the subscriber
+　→_subscriptions[topic].subscribe(**subscribe_args)
+endrnote
+
+Subscribe -> SubscriberManager : manager.subscribe(self.client_id, self.topic, self.on_msg, msg_type)
+rnote over SubscriberManager
+SubscriberManager::subscribe()
+・Topicをサブすクライマする。
+　（MultiSubscriber::__init__()を参照）
+endrnote
+SubscriberManager -> ROS:self.subscriber = Subscriber(topic, msg_class, self.callback)
+
+rnote over SubscriberManager
+SubscriberManager::subscribe()
+・Subscribe::publish()をMultiSubscriberに登録
+　→self._subscribers[topic].subscribe(client_id, callback)
+　　（MultiSubscriber::subscribe()を参照）
+　→rospyからのmsgを受信した後、
+　　Subscribe::publish()をコールされる。
+endrnote
+end
+
+'/メッセージ受信
+loop Receive Message
+    ROS -> SubscriberManager : MultiSubscriber::callback
+    rnote over SubscriberManager
+    MultiSubscriber::callback()
+    ・MultiSubscriber::subscribeに登録した
+    　Subscribe::publish()をコールする。
+    endrnote
+
+    SubscriberManager -> Subscribe : callback(outgoing)
+    rnote over Subscribe
+    Subscribe::publish()
+    ・Publish a message to the client
+    endrnote
+    
+    Subscribe -> Protocol : protocol.send(outgoing_msg, compression=compression)
+    rnote over Protocol
+    Protocol::send()
+    ・Called internally in preparation for 
+    　sending messages to the client
+    endrnote
+    
+    Protocol -> RosbridgeWebSocket : self.outgoing(serialized, compression=compression)
+    rnote over RosbridgeWebSocket
+    RosbridgeWebSocket::outgoing()
+    ・AutobahnのsendMessageでブラウザへ送信する
+    　（RosbridgeWebSocketは
+    　　AutobahnのWebSocketServerProtocolの子クラス）
+    endrnote
+
+    RosbridgeWebSocket -> ServiceResponse : self.sendMessage(message, binary)
+    rnote over ServiceResponse
+    onmessage: function onMessage(data)
+    ・Parse message responses from rosbridge and
+    　send to the appropriate topic, service, or param.
+    endrnote
+
+    ServiceResponse -> Topic : that.emit('message', new Message(data));
+    rnote over Topic
+    function Topic(options)
+    ・this._messageCallback = function(data)
+    　→that.emit('message', new Message(data));
+    endrnote
+    Topic -> browser : topic.subscribe(function (message)
+end
+
+participant ROS
+
+caption \
+RosbridgeWebSocket -> /rosbridge_server/src/rosbridge_server/autobahn_websocket.py\n\
+Another line of the caption\n\
+Third line of the caption               \n
+
+@enduml
