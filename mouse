@@ -1,62 +1,50 @@
+glBegin、glVertex3d、glEndで点群が描画できます。
 
-source ./devel/setup/bash
-rosrun helloworld helloworld_c
+描画方法：
+            glColor3f(1.0, 1.0, 1.0);
+            glBegin(GL_POINTS);
+            for (const auto& point : cloud.points) {
+                //std::cout << "x: " << point.x << ",y: " << point.y << ",z: " << point.z << std::endl; 
+                glVertex3d(point.x, point.y, point.z);
+            }
+            glEnd();
+
+また、検証のために4つの実験を行いました。
+
+試験１：トピックを購読せずに、点群を描画します
+結論：glBegin、glVertex3d、glEndで点群を描画できる。
+
+試験２：トピックを購読し、コールバック関数内で描画します。
+結論：glBegin、glVertex3d、glEndは実行されますが、点群が描画されません（glutMainLoop()必須）
+
+試験３：ros::spin()をMainThreadで実行し、glutMainLoop()をSubThreadで実行します。
+結論：①点群が描画できます。
+      ②pcl::fromROSMsg(*msg, cloud)を使用すると、点群データの解析が便利になります。
+      ③glutPostRedisplay()を呼び出さないと、OpenGLに再描画が行われません。
+
+試験４：ros::spin()をSubThreadで実行し、glutMainLoop()をMainThreadで実行する。
+結論：点群を描画できますが、SleepしないとlidarCallbackが呼び出されません。
+
+また、
+点群データの解析はPCL（Point Cloud Library）を使用すると簡単です。
+インストール：
+sudo apt-get install libpcl-dev
+CMakeLists.txtの設定：
+find_package(PCL 1.7 REQUIRED)
+
+include_directories(
+
+# include
+  ...
+  ${PCL_INCLUDE_DIRS}
+)
+
+add_definitions(${PCL_DEFINITIONS})
+
+target_link_libraries(main_c
+  ...
+  ${PCL_LIBRARIES}
+)
 
 
-python3 -m http.server 8080 --bind 127.0.0.1
-
-roscore
-roslaunch rosbridge_server rosbridge_websocket.launch
-python3 ros_to_rosbridge.py
-
-source ./devel/setup/bash
-
-ROS1で以下の実験を行いましたが、topicのincludeやexclude機能を実現できませんでした。
-おそらく私の使用方法が誤っている可能性があり、現在調査中です。
-
-■テストノードを新規追加しました。
-１秒周期でTopicA、TopicBをPubします。
-
-■下記の順番でコマンドを実行しました。
-・周期でTopicをPubする。
-　rosrun helloworld helloworld_c
-・HTTP server起動
-　python3 -m http.server 8080 --bind 127.0.0.1	
-・roscore起動
-　roscore
-・rosbridge Server起動
-　roslaunch rosbridge_server rosbridge_websocket.launch
-・rosbridge起動
-　python3 rosbridge_to_ros.py 
-
-■conf/config.yamlファイルの設定＆確認結果
-①topicB：exclude、topicA：include
-id : robot_a
-exclude_topics:
-   略...
-   /topicB
-include_topics:
-  略...
-  # - name : /topicA
-  #   type : std_msgs/String
-
-→実行結果：ブラウザがTopicAとTopicBをサブスクライブされました
-　python3 ros_to_rosbridge.pyのログ：
-　$ python3 rosbridge_to_ros.py 
-　[INFO] [1706544649.435149]: 
-　[INFO] [1706544649.439502]: Remote Host : [127.0.0.1:9090]
-　[INFO] [1706544649.448079]: 
-　[INFO] [1706544649.450035]: Make below topics bridge
-　[INFO] [1706544649.493712]: Bridge Sub:[/topicA] => Local Pub:[/robot_a/topicA]
-
-②topicA、topicAを設定しない。
-→実行結果：ブラウザがTopicAとTopicBもサブスクライブできました。
-　python3 ros_to_rosbridge.pyのログ：
-　$ python3 rosbridge_to_ros.py 
-　[INFO] [1706543779.745576]: 
-　[INFO] [1706543779.748953]: Remote Host : [127.0.0.1:9090]
-　[INFO] [1706543779.750643]: 
-　[INFO] [1706543779.752333]: Make below topics bridge
-　[INFO] [1706543779.811986]: Bridge Sub:[/connected_clients] => Local Pub:[/robot_a/connected_clients]
-　[INFO] [1706543779.817209]: Bridge Sub:[/topicA] => Local Pub:[/robot_a/topicA]
-　[INFO] [1706543779.824718]: Bridge Sub:[/topicB] => Local Pub:[/robot_a/topicB]
+コードは
