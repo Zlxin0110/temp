@@ -1,157 +1,152 @@
-@startuml qwe
+Off-screen renderingについての理解
+画面に直接表示されない状況でレンダリングを行う技術です。
+この場合、レンダリング結果はメモリやテクスチャに保存され、必要に応じて処理や表示が行われます。
 
-participant browser
+glReadPixels関数などを使用してバッファデータを読み取ることができます。
 
-box "roslib"
-participant Ros as roslis_ros <<(1,#ADD1B2)>>
-participant Topic <<(2,#ADD1B2)>>
-participant ServiceResponse  <<(3,#ADD1B2)>>
-end box
 
-box "rosbridge_server"
-participant RosbridgeWebSocket <<(4,#ADD1B2)>>
-participant RosbridgeProtocol as Protocol <<(5,#ADD1B2)>>
-participant Subscribe <<(6,#ADD1B2)>>
-participant SubscriberManager <<(7,#ADD1B2)>>
-end box
-'//④RosbridgeWebSocket rosbridge_server/src/rosbridge_server/autobahn_websocket.py
-'//⑤RosbridgeProtocol  (親)rosbridge_library/src/rosbridge_library/protocol.py
-'//                     (子)rosbridge_library/src/rosbridge_library/rosbridge_protocol.py
-'//⑥Subscribe          rosbridge_library/src/rosbridge_library/capabilities/subscribe.py
-'//⑦SubscriberManager  rosbridge_library/src/rosbridge_library/internal/subscribers.py
 
-'/接続
-group Connect WebSocket Server
-browser -> roslis_ros: ros = new ROSLIB.Ros()
-rnote over roslis_ros
-Ros.prototype.connect = function(url)
-・Connect to the specified WebSocket
-endrnote
-roslis_ros -> RosbridgeWebSocket:sock = new WebSocket(url)
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <iostream>
 
-rnote over RosbridgeWebSocket
-RosbridgeWebSocket::onOpen(self)
-・init paramenter
-・create IncomingQueue object
-  →create queue save browser msg
-  →監視スレッドrun()を立ち上がる
-endrnote
-browser -> Topic: topic = new ROSLIB.Topic()
-end
+const int WIDTH = 800;
+const int HEIGHT = 600;
 
-'/トピックのサブすクライマ
-group Topic Subscription
-rnote over Topic
-function Topic(options)
-・Publish and/or subscribe to a topic in ROS.
-endrnote
+int main() {
+    // Initialize GLFW
+    if (!glfwInit()) {
+        std::cerr << "Failed to initialize GLFW" << std::endl;
+        return -1;
+    }
 
-Topic -> roslis_ros: that.ros.callOnConnection(message)
-rnote over roslis_ros
-Ros.prototype.callOnConnection = function(message)
-・ Send an encoded message over the WebSocket.
-　→Ros.prototype.sendEncodedMessage
-endrnote
-roslis_ros -> RosbridgeWebSocket:socket.send(msg)
+    // Create a windowed mode window and its OpenGL context
+    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Off-screen Rendering Example", NULL, NULL);
+    if (!window) {
+        std::cerr << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
 
-rnote over RosbridgeWebSocket
-RosbridgeWebSocket::onMessage()
-・受信したmsgをqueueに保存
-  →self.incoming_queue.push(message)
-endrnote
-loop listen IncomingQueue::queue
-    alt queue != null
-        RosbridgeWebSocket -> Protocol :protocol.incoming(msg)
-    end
-end
+    // Make the window's context current
+    glfwMakeContextCurrent(window);
 
-rnote over Protocol
-def def incoming(self, message_string="")
-・Process an incoming message from the client
-endrnote
-alt operation == Subscribe
-    Protocol -> Subscribe : self.operations[op](msg)
-end
+    // Initialize GLEW
+    if (glewInit() != GLEW_OK) {
+        std::cerr << "Failed to initialize GLEW" << std::endl;
+        return -1;
+    }
 
-rnote over Subscribe
-Subscribe::incoming(self, message_string="")
-・Create a subscription for the specified client on the specified topic,
-　with callback publish
-　→subscriptions[topic] = Subscription(client_id, topic, cb)」
-　<b><font color="#FF0000">※上記のcbはpublish関数(cb = partial(self.publish, topic))</font></b>
-・Register the subscriber
-　→_subscriptions[topic].subscribe(**subscribe_args)
-endrnote
+    // Create a frame buffer object (FBO)
+    GLuint fbo;
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-Subscribe -> SubscriberManager : manager.subscribe(self.client_id, self.topic, self.on_msg, msg_type)
-rnote over SubscriberManager
-SubscriberManager::subscribe()
-・Topicをサブすクライマする。
-　（MultiSubscriber::__init__()を参照）
-endrnote
-SubscriberManager -> ROS:self.subscriber = Subscriber(topic, msg_class, self.callback)
+    // Create a texture to render to
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, WIDTH, HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
 
-rnote over SubscriberManager
-SubscriberManager::subscribe()
-・Subscribe::publish()をMultiSubscriberに登録
-　→self._subscribers[topic].subscribe(client_id, callback)
-　　（MultiSubscriber::subscribe()を参照）
-　→rospyからのmsgを受信した後、
-　　Subscribe::publish()をコールされる。
-endrnote
-end
+    // Set the viewport and clear the screen
+    glViewport(0, 0, WIDTH, HEIGHT);
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-'/メッセージ受信
-loop Receive Message
-    ROS -> SubscriberManager : MultiSubscriber::callback
-    rnote over SubscriberManager
-    MultiSubscriber::callback()
-    ・MultiSubscriber::subscribeに登録した
-    　Subscribe::publish()をコールする。
-    endrnote
+    // Render something (e.g., a triangle)
+    glBegin(GL_TRIANGLES);
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glVertex2f(-0.5f, -0.5f);
+    glColor3f(0.0f, 1.0f, 0.0f);
+    glVertex2f(0.5f, -0.5f);
+    glColor3f(0.0f, 0.0f, 1.0f);
+    glVertex2f(0.0f, 0.5f);
+    glEnd();
 
-    SubscriberManager -> Subscribe : callback(outgoing)
-    rnote over Subscribe
-    Subscribe::publish()
-    ・Publish a message to the client
-    endrnote
-    
-    Subscribe -> Protocol : protocol.send(outgoing_msg, compression=compression)
-    rnote over Protocol
-    Protocol::send()
-    ・Called internally in preparation for 
-    　sending messages to the client
-    endrnote
-    
-    Protocol -> RosbridgeWebSocket : self.outgoing(serialized, compression=compression)
-    rnote over RosbridgeWebSocket
-    RosbridgeWebSocket::outgoing()
-    ・AutobahnのsendMessageでブラウザへ送信する
-    　（RosbridgeWebSocketは
-    　　AutobahnのWebSocketServerProtocolの子クラス）
-    endrnote
+    // Bind the default framebuffer (screen)
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    RosbridgeWebSocket -> ServiceResponse : self.sendMessage(message, binary)
-    rnote over ServiceResponse
-    onmessage: function onMessage(data)
-    ・Parse message responses from rosbridge and
-    　send to the appropriate topic, service, or param.
-    endrnote
+    // Clear the screen again
+    glClear(GL_COLOR_BUFFER_BIT);
 
-    ServiceResponse -> Topic : that.emit('message', new Message(data));
-    rnote over Topic
-    function Topic(options)
-    ・this._messageCallback = function(data)
-    　→that.emit('message', new Message(data));
-    endrnote
-    Topic -> browser : topic.subscribe(function (message)
-end
+    // Render the texture to the screen
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f); glVertex2f(-1.0f, -1.0f);
+    glTexCoord2f(1.0f, 0.0f); glVertex2f(1.0f, -1.0f);
+    glTexCoord2f(1.0f, 1.0f); glVertex2f(1.0f, 1.0f);
+    glTexCoord2f(0.0f, 1.0f); glVertex2f(-1.0f, 1.0f);
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
 
-participant ROS
+    // Swap front and back buffers
+    glfwSwapBuffers(window);
 
-caption \
-RosbridgeWebSocket -> /rosbridge_server/src/rosbridge_server/autobahn_websocket.py\n\
-Another line of the caption\n\
-Third line of the caption               \n
+    // Poll for and process events
+    while (!glfwWindowShouldClose(window)) {
+        glfwPollEvents();
+    }
 
-@enduml
+    // Terminate GLFW
+    glfwTerminate();
+
+    return 0;
+}
+
+
+
+
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <iostream>
+#include <SOIL/SOIL.h>
+
+int main() {
+    // Initialize GLFW
+    if (!glfwInit()) {
+        std::cerr << "Failed to initialize GLFW" << std::endl;
+        return -1;
+    }
+
+    // Create a window (hidden) and its OpenGL context
+    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+    GLFWwindow* window = glfwCreateWindow(800, 600, "Off-screen Rendering", nullptr, nullptr);
+    if (!window) {
+        std::cerr << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+
+    // Make the window's context current
+    glfwMakeContextCurrent(window);
+
+    // Initialize GLEW
+    if (glewInit() != GLEW_OK) {
+        std::cerr << "Failed to initialize GLEW" << std::endl;
+        return -1;
+    }
+
+    // Off-screen rendering
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Rendering code here...
+
+    // Save the rendered image to a file
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+    unsigned char* image = new unsigned char[width * height * 4];
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, image);
+    SOIL_save_image("rendered_image.png", SOIL_SAVE_TYPE_PNG, width, height, 4, image);
+
+    delete[] image;
+
+    // Terminate GLFW
+    glfwTerminate();
+
+    return 0;
+}
