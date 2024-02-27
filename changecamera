@@ -1,18 +1,250 @@
-sudo sh -c 'echo "deb [arch=amd64,arm64] http://packages.ros.org/ros2/ubuntu humble main" > /etc/apt/sources.list.d/ros2-latest.list'
-添加 GPG key：
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <iostream>
 
-bash
-Copy code
-sudo apt update && sudo apt install curl gnupg2 lsb-release
-curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
-安装 ROS 2 Humble 桌面：
+// 顶点着色器代码
+const char* vertexShaderSource = R"(
+    #version 330 core
+    layout (location = 0) in vec3 aPos;
+    void main()
+    {
+        gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    }
+)";
 
-bash
-Copy code
-sudo apt update
-sudo apt install -y ros-humble-desktop
-初始化 ROS 2 环境：
+// 片段着色器代码
+const char* fragmentShaderSource = R"(
+    #version 330 core
+    out vec4 FragColor;
+    void main()
+    {
+        FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+    }
+)";
 
-bash
-Copy code
-source /opt/ros/humble/setup.bash
+int main()
+{
+    // 初始化 GLFW
+    if (!glfwInit())
+    {
+        std::cerr << "Failed to initialize GLFW" << std::endl;
+        return -1;
+    }
+
+    // 创建窗口
+    GLFWwindow* window = glfwCreateWindow(800, 600, "Simple Triangle", NULL, NULL);
+    if (!window)
+    {
+        std::cerr << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(window);
+
+    // 初始化 GLEW
+    if (glewInit() != GLEW_OK)
+    {
+        std::cerr << "Failed to initialize GLEW" << std::endl;
+        return -1;
+    }
+
+    // 创建顶点着色器
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+
+    // 创建片段着色器
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+
+    // 创建着色器程序并链接着色器
+    GLuint shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+
+    // 设置顶点数据
+    float vertices[] = {
+         0.5f,  0.5f, 0.0f,  // 右上角
+         0.5f, -0.5f, 0.0f,  // 右下角
+        -0.5f, -0.5f, 0.0f,  // 左下角
+    };
+
+    // 创建顶点缓冲对象
+    GLuint VBO, VAO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // 渲染循环
+    while (!glfwWindowShouldClose(window))
+    {
+        // 输入事件处理
+        glfwPollEvents();
+
+        // 渲染指令
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // 绘制三角形
+        glUseProgram(shaderProgram);
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+        // 交换缓冲区
+        glfwSwapBuffers(window);
+    }
+
+    // 清理资源
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteProgram(shaderProgram);
+
+    // 终止 GLFW
+    glfwTerminate();
+    return 0;
+}
+
+
+
+
+
+
+#if 1
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <iostream>
+
+// 顶点着色器代码
+const char* vertexShaderSource = R"(
+    #version 330 core
+    layout (location = 0) in vec3 aPos;
+    void main()
+    {
+        gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    }
+)";
+
+// 片段着色器代码
+const char* fragmentShaderSource = R"(
+    #version 330 core
+    out vec4 FragColor;
+    void main()
+    {
+        FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+    }
+)";
+
+int main()
+{
+    // 初始化 GLFW
+    if (!glfwInit())
+    {
+        std::cerr << "Failed to initialize GLFW" << std::endl;
+        return -1;
+    }
+
+    // 创建窗口
+    GLFWwindow* window = glfwCreateWindow(800, 600, "Texture Buffer Triangle", NULL, NULL);
+    if (!window)
+    {
+        std::cerr << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(window);
+
+    // 初始化 GLEW
+    if (glewInit() != GLEW_OK)
+    {
+        std::cerr << "Failed to initialize GLEW" << std::endl;
+        return -1;
+    }
+
+    // 创建顶点着色器
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+
+    // 创建片段着色器
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+
+    // 创建着色器程序并链接着色器
+    GLuint shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+
+    // 设置顶点数据
+    float vertices[] = {
+         0.5f,  0.5f, 0.0f,  // 右上角
+         0.5f, -0.5f, 0.0f,  // 右下角
+        -0.5f, -0.5f, 0.0f,  // 左下角
+    };
+
+    // 创建并绑定顶点缓冲对象
+    GLuint VBO, VAO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // 创建并绑定纹理缓冲对象
+    GLuint TBO;
+    glGenBuffers(1, &TBO);
+    glBindBuffer(GL_TEXTURE_BUFFER, TBO);
+    glBufferData(GL_TEXTURE_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    // 将纹理缓冲对象绑定到纹理单元
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_BUFFER, texture);
+    glTexBuffer(GL_TEXTURE_BUFFER, GL_RGB32F, TBO);
+
+    // 渲染循环
+    while (!glfwWindowShouldClose(window))
+    {
+        // 输入事件处理
+        glfwPollEvents();
+
+        // 渲染指令
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // 绘制三角形
+        glUseProgram(shaderProgram);
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+        // 交换缓冲区
+        glfwSwapBuffers(window);
+    }
+
+    // 清理资源
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &TBO);
+    glDeleteTextures(1, &texture);
+    glDeleteProgram(shaderProgram);
+
+    // 终止 GLFW
+    glfwTerminate();
+    return 0;
+}
+
+#endif
