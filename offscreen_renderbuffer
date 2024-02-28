@@ -1,0 +1,111 @@
+// ===== offscreen(renderbuffer)
+#if 1
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <iostream>
+#include <vector>
+#include <png++/png.hpp>
+
+const int WIDTH = 800;
+const int HEIGHT = 600;
+
+void saveRenderbufferToPNG(const std::string& filename, int width, int height) {
+    std::vector<unsigned char> pixels(width * height * 4); // RGBA format
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+
+    png::image<png::rgba_pixel> image(width, height);
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            int index = (y * width + x) * 4;
+            image[y][x] = png::rgba_pixel(pixels[index], pixels[index + 1], pixels[index + 2], pixels[index + 3]);
+        }
+    }
+    image.write(filename);
+}
+
+int main() {
+    // 初始化 GLFW
+    if (!glfwInit()) {
+        std::cerr << "Failed to initialize GLFW" << std::endl;
+        return -1;
+    }
+
+    // 创建窗口
+    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Offscreen Rendering with Renderbuffer", nullptr, nullptr);
+    if (!window) {
+        std::cerr << "Failed to create window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(window);
+
+    // 初始化 GLEW
+    if (glewInit() != GLEW_OK) {
+        std::cerr << "Failed to initialize GLEW" << std::endl;
+        return -1;
+    }
+
+    // 创建并绑定帧缓冲对象
+    GLuint fbo;
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+    // 创建渲染缓冲对象并附加到帧缓冲对象
+    GLuint rbo;
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA, WIDTH, HEIGHT);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rbo);
+
+    // 检查帧缓冲完整性
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        std::cerr << "Framebuffer is not complete" << std::endl;
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glDeleteFramebuffers(1, &fbo);
+        glDeleteRenderbuffers(1, &rbo);
+        glfwTerminate();
+        return -1;
+    }
+
+    // 渲染到渲染缓冲区
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glViewport(0, 0, WIDTH, HEIGHT);
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glBegin(GL_TRIANGLES);
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glVertex2f(-0.5f, -0.5f);
+    glColor3f(0.0f, 1.0f, 0.0f);
+    glVertex2f(0.5f, -0.5f);
+    glColor3f(0.0f, 0.0f, 1.0f);
+    glVertex2f(0.0f, 0.5f);
+    glEnd();
+
+    // 将帧缓冲对象绑定回默认帧缓冲
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // 窗口循环
+    while (!glfwWindowShouldClose(window)) {
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // 绘制渲染缓冲区的内容到屏幕
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+        glBlitFramebuffer(0, 0, WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    // 清理资源
+    glDeleteFramebuffers(1, &fbo);
+    glDeleteRenderbuffers(1, &rbo);
+    glfwTerminate();
+
+    return 0;
+}
+
+
+#endif
+// ===== offscreen(renderbuffer)
