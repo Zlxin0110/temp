@@ -109,3 +109,37 @@ int main() {
 
 #endif
 // ===== offscreen(renderbuffer)
+
+cmake_minimum_required(VERSION 3.0)
+project(YourProjectName)
+
+# 查找 OpenGL 和 GLFW
+find_package(OpenGL REQUIRED)
+find_package(glfw3 REQUIRED)
+
+# 添加包含目录和链接库
+include_directories(${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS})
+link_libraries(${OPENGL_LIBRARIES} glfw)
+
+# 查找 png++ 库
+find_path(PNGPP_INCLUDE_DIR NAMES png++/png.hpp)
+find_library(PNG_LIBRARY NAMES png)
+
+# 添加 png++ 库的包含目录和链接库
+include_directories(${PNGPP_INCLUDE_DIR})
+link_libraries(${PNG_LIBRARY})
+
+# 添加可执行文件
+add_executable(YourExecutableName main.cpp)
+
+# 链接 OpenGL, GLFW 和 png++ 库
+target_link_libraries(YourExecutableName ${OPENGL_LIBRARIES} glfw ${PNG_LIBRARY})
+=================
+dpkg -l | grep libpng++-dev
+
+sudo apt-get install libpng++-dev
+
+
+
+
+
