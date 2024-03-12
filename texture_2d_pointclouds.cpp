@@ -194,3 +194,97 @@ std::vector<float> generateSpherePointCloud(int numPoints, float radius)
     }
     return points;
 }
+
+
+
+
+
+
+
+// 坐标轴的顶点数据
+float axisVertices[] = {
+    0.0f, 0.0f, 0.0f,  // 原点
+    1.0f, 0.0f, 0.0f,  // X轴端点
+    0.0f, 0.0f, 0.0f,  // 原点
+    0.0f, 1.0f, 0.0f,  // Y轴端点
+    0.0f, 0.0f, 0.0f,  // 原点
+    0.0f, 0.0f, 1.0f   // Z轴端点
+};
+
+// 顶点着色器代码
+const char* vertexShaderSource = R"(
+    #version 330 core
+    layout (location = 0) in vec3 aPos;
+
+    uniform mat4 view;
+    uniform mat4 projection;
+
+    void main()
+    {
+        gl_Position = projection * view * vec4(aPos, 1.0);
+    }
+)";
+
+// 片段着色器代码
+const char* fragmentShaderSource = R"(
+    #version 330 core
+    out vec4 FragColor;
+
+    void main()
+    {
+        FragColor = vec4(1.0, 1.0, 1.0, 1.0); // 绘制为白色
+    }
+)";
+
+// 创建和绑定VAO
+GLuint VAO, VBO;
+glGenVertexArrays(1, &VAO);
+glGenBuffers(1, &VBO);
+glBindVertexArray(VAO);
+glBindBuffer(GL_ARRAY_BUFFER, VBO);
+glBufferData(GL_ARRAY_BUFFER, sizeof(axisVertices), axisVertices, GL_STATIC_DRAW);
+glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+glEnableVertexAttribArray(0);
+
+// 编译着色器程序
+unsigned int vertexShader, fragmentShader, shaderProgram;
+vertexShader = glCreateShader(GL_VERTEX_SHADER);
+glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+glCompileShader(vertexShader);
+// 检查顶点着色器是否编译成功...
+
+fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+glCompileShader(fragmentShader);
+// 检查片段着色器是否编译成功...
+
+shaderProgram = glCreateProgram();
+glAttachShader(shaderProgram, vertexShader);
+glAttachShader(shaderProgram, fragmentShader);
+glLinkProgram(shaderProgram);
+// 检查着色器程序是否链接成功...
+
+// 渲染循环
+while (!glfwWindowShouldClose(window))
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glUseProgram(shaderProgram);
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_LINES, 0, 6);
+
+    // 检查事件...
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+}
+
+// 清理资源
+glDeleteVertexArrays(1, &VAO);
+glDeleteBuffers(1, &VBO);
+glDeleteProgram(shaderProgram);
+glDeleteShader(vertexShader);
+glDeleteShader(fragmentShader);
+
