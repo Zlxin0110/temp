@@ -196,10 +196,12 @@ std::vector<float> generateSpherePointCloud(int numPoints, float radius)
 }
 
 
-
-
-
-
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <iostream>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 // 坐标轴的顶点数据
 float axisVertices[] = {
@@ -236,55 +238,83 @@ const char* fragmentShaderSource = R"(
     }
 )";
 
-// 创建和绑定VAO
-GLuint VAO, VBO;
-glGenVertexArrays(1, &VAO);
-glGenBuffers(1, &VBO);
-glBindVertexArray(VAO);
-glBindBuffer(GL_ARRAY_BUFFER, VBO);
-glBufferData(GL_ARRAY_BUFFER, sizeof(axisVertices), axisVertices, GL_STATIC_DRAW);
-glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-glEnableVertexAttribArray(0);
-
-// 编译着色器程序
-unsigned int vertexShader, fragmentShader, shaderProgram;
-vertexShader = glCreateShader(GL_VERTEX_SHADER);
-glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-glCompileShader(vertexShader);
-// 检查顶点着色器是否编译成功...
-
-fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-glCompileShader(fragmentShader);
-// 检查片段着色器是否编译成功...
-
-shaderProgram = glCreateProgram();
-glAttachShader(shaderProgram, vertexShader);
-glAttachShader(shaderProgram, fragmentShader);
-glLinkProgram(shaderProgram);
-// 检查着色器程序是否链接成功...
-
-// 渲染循环
-while (!glfwWindowShouldClose(window))
+int main()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // 初始化GLFW
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    glUseProgram(shaderProgram);
-    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
-    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    // 创建窗口
+    GLFWwindow* window = glfwCreateWindow(800, 600, "Coordinate Axes", NULL, NULL);
+    if (window == NULL)
+    {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(window);
 
+    // 初始化GLAD
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
+
+    // 创建和绑定VAO
+    GLuint VAO, VBO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
     glBindVertexArray(VAO);
-    glDrawArrays(GL_LINES, 0, 6);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(axisVertices), axisVertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
 
-    // 检查事件...
-    glfwSwapBuffers(window);
-    glfwPollEvents();
-}
+    // 编译着色器程序
+    unsigned int vertexShader, fragmentShader, shaderProgram;
+    vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+    // 检查顶点着色器是否编译成功...
 
-// 清理资源
-glDeleteVertexArrays(1, &VAO);
-glDeleteBuffers(1, &VBO);
-glDeleteProgram(shaderProgram);
-glDeleteShader(vertexShader);
-glDeleteShader(fragmentShader);
+    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+    // 检查片段着色器是否编译成功...
+
+    shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+    // 检查着色器程序是否链接成功...
+
+    // 渲染循环
+    while (!glfwWindowShouldClose(window))
+    {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // 设置投影矩阵和视图矩阵
+        glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+        glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+        glUseProgram(shaderProgram);
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_LINES, 0, 6);
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    // 清理
+
+
+
+
+
 
