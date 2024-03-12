@@ -163,3 +163,34 @@ int main()
     glfwTerminate();
     return 0;
 }
+
+
+
+#include <vector>
+#include <cmath>
+
+std::vector<float> generateSpherePointCloud(int numPoints, float radius)
+{
+    std::vector<float> points;
+    for (int i = 0; i < numPoints; ++i)
+    {
+        float u = static_cast<float>(rand()) / RAND_MAX;  // 球面上的参数 u，范围[0,1]
+        float v = static_cast<float>(rand()) / RAND_MAX;  // 球面上的参数 v，范围[0,1]
+        float theta = 2.0f * 3.14159265359f * u;          // 绕 y 轴旋转角度，范围[0, 2π]
+        float phi = acos(2.0f * v - 1.0f);                 // 绕 x 轴旋转角度，范围[0, π]
+
+        float x = radius * sin(phi) * cos(theta);           // 根据球面参数计算球面上的点的坐标
+        float y = radius * sin(phi) * sin(theta);
+        float z = radius * cos(phi);
+
+        points.push_back(x);
+        points.push_back(y);
+        points.push_back(z);
+
+        // 使用固定颜色或者根据球面坐标计算颜色
+        points.push_back(0.0f); // r 分量
+        points.push_back(1.0f); // g 分量
+        points.push_back(0.0f); // b 分量
+    }
+    return points;
+}
