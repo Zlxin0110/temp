@@ -336,3 +336,44 @@ int main()
     return 0;
 }
 
+
+
+
+const char* fragmentShaderSource = R"(
+    #version 330 core
+    out vec4 FragColor;
+
+    void main()
+    {
+        if (gl_FragCoord.x < 400.0 && gl_FragCoord.y < 300.0)
+            FragColor = vec4(1.0, 0.0, 0.0, 1.0); // X轴设置为红色
+        else if (gl_FragCoord.x >= 400.0 && gl_FragCoord.y < 300.0)
+            FragColor = vec4(0.0, 1.0, 0.0, 1.0); // Y轴设置为绿色
+        else
+            FragColor = vec4(0.0, 0.0, 1.0, 1.0); // Z轴设置为蓝色
+    }
+)";
+
+
+
+#include <cmath>
+
+// 相机参数
+float cameraX = 0.0f;
+float cameraY = 0.0f;
+float cameraZ = 3.0f;
+
+// 相机旋转角度
+float angle = 45.0f;
+
+// 计算旋转后的相机位置
+float cameraXNew = cameraX * cos(angle) - cameraZ * sin(angle);
+float cameraZNew = cameraX * sin(angle) + cameraZ * cos(angle);
+
+// 构建视图矩阵
+float viewMatrix[16] = {
+    1.0f, 0.0f, 0.0f, -cameraXNew,
+    0.0f, 1.0f, 0.0f, -cameraY,
+    0.0f, 0.0f, 1.0f, -cameraZNew,
+    0.0f, 0.0f, 0.0f, 1.0f
+};
