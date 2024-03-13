@@ -195,13 +195,9 @@ std::vector<float> generateSpherePointCloud(int numPoints, float radius)
     return points;
 }
 
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 // 坐标轴的顶点数据
 float axisVertices[] = {
@@ -297,12 +293,30 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // 设置投影矩阵和视图矩阵
-        glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-        glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        float aspectRatio = 800.0f / 600.0f;
+        float fov = 45.0f;
+        float nearPlane = 0.1f;
+        float farPlane = 100.0f;
+        float z = 3.0f;
+
+        float f = 1.0f / tan(fov * 0.5f * 3.14159265358979323846f / 180.0f);
+        float projectionMatrix[16] = {
+            f / aspectRatio, 0.0f, 0.0f, 0.0f,
+            0.0f, f, 0.0f, 0.0f,
+            0.0f, 0.0f, (farPlane + nearPlane) / (nearPlane - farPlane), -1.0f,
+            0.0f, 0.0f, (2.0f * farPlane * nearPlane) / (nearPlane - farPlane), 0.0f
+        };
+
+        float viewMatrix[16] = {
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, -z, 1.0f
+        };
 
         glUseProgram(shaderProgram);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, viewMatrix);
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, projectionMatrix);
 
         glBindVertexArray(VAO);
         glDrawArrays(GL_LINES, 0, 6);
@@ -312,9 +326,13 @@ int main()
     }
 
     // 清理
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+    glDeleteProgram(shaderProgram);
 
-
-
-
-
+    glfwTerminate();
+    return 0;
+}
 
