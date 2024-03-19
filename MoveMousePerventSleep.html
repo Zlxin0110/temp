@@ -19,59 +19,152 @@ echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
 source .bashrc
 ============================
 
-如果纹理中包含了多个图形，并且您希望将所有图形都渲染到屏幕上，您可以在渲染矩形的过程中使用纹理坐标来选择纹理中的不同部分。每个图形可以在纹理中占据不同的区域，然后在片段着色器中根据纹理坐标来决定使用哪个部分的纹理颜色。
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <iostream>
 
-假设您的纹理中包含了多个图形，每个图形都在纹理中占据了一定的区域，并且您知道每个图形在纹理中的位置和大小，您可以在顶点数据中添加额外的信息来指定每个顶点所属的图形。然后在片段着色器中根据顶点数据中的信息来选择使用哪个图形的纹理颜色。
+const unsigned int WIDTH = 800;
+const unsigned int HEIGHT = 600;
 
-这里是一个简单的示例，假设纹理中包含了一个矩形和一个三角形，您可以通过纹理坐标来选择使用哪个部分的纹理颜色：
+// 顶点着色器代码
+const char *vertexShaderSource = R"(
+    #version 330 core
+    layout (location = 0) in vec2 aPos;
+    layout (location = 1) in vec2 aTexCoord;
+    layout (location = 2) in float aShapeIndex;
 
-顶点着色器：
+    out vec2 TexCoord;
+    flat out int ShapeIndex;
 
-glsl
-Copy code
-#version 330 core
-layout (location = 0) in vec2 aPos;
-layout (location = 1) in vec2 aTexCoord;
-layout (location = 2) in float aShapeIndex; // 顶点所属的图形索引
+    void main() {
+        gl_Position = vec4(aPos, 0.0, 1.0);
+        TexCoord = aTexCoord;
+        ShapeIndex = int(aShapeIndex);
+    }
+)";
 
-out vec2 TexCoord;
-flat out int ShapeIndex;
+// 片段着色器代码
+const char *fragmentShaderSource = R"(
+    #version 330 core
+    out vec4 FragColor;
 
-void main() {
-    gl_Position = vec4(aPos, 0.0, 1.0);
-    TexCoord = aTexCoord;
-    ShapeIndex = int(aShapeIndex); // 将 float 类型转换为 int 类型
-}
-片段着色器：
+    in vec2 TexCoord;
+    flat in int ShapeIndex;
 
-glsl
-Copy code
-#version 330 core
-out vec4 FragColor;
+    uniform sampler2D texture1;
 
-in vec2 TexCoord;
-flat in int ShapeIndex;
+    void main() {
+        vec4 color;
+        if (ShapeIndex == 0) { // 矩形
+            color = texture(texture1, TexCoord);
+        } else if (ShapeIndex == 1) { // 三角形
+            color = texture(texture1, TexCoord);
+        }
 
-uniform sampler2D texture1;
+        FragColor = color;
+    }
+)";
 
-void main() {
-    vec4 color;
-    if (ShapeIndex == 0) { // 矩形
-        color = texture(texture1, TexCoord);
-    } else if (ShapeIndex == 1) { // 三角形
-        color = texture(texture1, TexCoord);
+int main() {
+    // 初始化 GLFW
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    // 创建窗口对象
+    GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "OpenGL Example", NULL, NULL);
+    if (window == NULL) {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(window);
+
+    // 初始化 GLAD
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
     }
 
-    FragColor = color;
+    // 编译着色器程序
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+
+    GLuint shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+
+    // 设置顶点数据和属性指针
+    float vertices[] = {
+        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, // 左下角
+         1.0f, -1.0f, 0.0f, 1.0f, 0.0f, // 右下角
+         1.0f,  1.0f, 0.0f, 1.0f, 1.0f, // 右上角
+        -1.0f,  1.0f, 0.0f, 0.0f, 1.0f  // 左上角
+    };
+
+    unsigned int indices[] = {
+        0, 1, 2,
+        2, 3, 0
+    };
+
+    GLuint VAO, VBO, EBO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    // 渲染循环
+    while (!glfwWindowShouldClose(window)) {
+        // 渲染指令
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // 激活着色器程序
+        glUseProgram(shaderProgram);
+
+        // 绑定纹理
+        // glBindTexture(GL_TEXTURE_2D, texture);
+
+        // 渲染矩形
+        glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        // 交换缓冲区和检查事件
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    // 清理资源
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
+
+    glfwTerminate();
+    return 0;
 }
-在这个示例中，顶点数据包括顶点位置、纹理坐标和顶点所属的图形索引。在片段着色器中根据图形索引来选择使用纹理的哪个部分，从而实现渲染多个图形的效果。
 
-
-
-
-
-
-
-
-
+    
 
