@@ -18,3 +18,60 @@ ros2 run demo_nodes_py listener
 echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
 source .bashrc
 ============================
+
+如果纹理中包含了多个图形，并且您希望将所有图形都渲染到屏幕上，您可以在渲染矩形的过程中使用纹理坐标来选择纹理中的不同部分。每个图形可以在纹理中占据不同的区域，然后在片段着色器中根据纹理坐标来决定使用哪个部分的纹理颜色。
+
+假设您的纹理中包含了多个图形，每个图形都在纹理中占据了一定的区域，并且您知道每个图形在纹理中的位置和大小，您可以在顶点数据中添加额外的信息来指定每个顶点所属的图形。然后在片段着色器中根据顶点数据中的信息来选择使用哪个图形的纹理颜色。
+
+这里是一个简单的示例，假设纹理中包含了一个矩形和一个三角形，您可以通过纹理坐标来选择使用哪个部分的纹理颜色：
+
+顶点着色器：
+
+glsl
+Copy code
+#version 330 core
+layout (location = 0) in vec2 aPos;
+layout (location = 1) in vec2 aTexCoord;
+layout (location = 2) in float aShapeIndex; // 顶点所属的图形索引
+
+out vec2 TexCoord;
+flat out int ShapeIndex;
+
+void main() {
+    gl_Position = vec4(aPos, 0.0, 1.0);
+    TexCoord = aTexCoord;
+    ShapeIndex = int(aShapeIndex); // 将 float 类型转换为 int 类型
+}
+片段着色器：
+
+glsl
+Copy code
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoord;
+flat in int ShapeIndex;
+
+uniform sampler2D texture1;
+
+void main() {
+    vec4 color;
+    if (ShapeIndex == 0) { // 矩形
+        color = texture(texture1, TexCoord);
+    } else if (ShapeIndex == 1) { // 三角形
+        color = texture(texture1, TexCoord);
+    }
+
+    FragColor = color;
+}
+在这个示例中，顶点数据包括顶点位置、纹理坐标和顶点所属的图形索引。在片段着色器中根据图形索引来选择使用纹理的哪个部分，从而实现渲染多个图形的效果。
+
+
+
+
+
+
+
+
+
+
