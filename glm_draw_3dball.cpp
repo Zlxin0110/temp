@@ -276,6 +276,32 @@ void processInput(GLFWwindow* window) {
         glfwSetWindowShouldClose(window, true);
 }
 
+const char* screenVertexShaderSource = R"(
+    #version 330 core
+    layout (location = 0) in vec2 aPos;
+    layout (location = 1) in vec2 aTexCoord;
+
+    out vec2 TexCoord;
+
+    void main() {
+        gl_Position = vec4(aPos, 0.0, 1.0);
+        TexCoord = aTexCoord;
+    }
+)";
+
+const char* screenFragmentShaderSource = R"(
+    #version 330 core
+    out vec4 FragColor;
+
+    in vec2 TexCoord;
+
+    uniform sampler2D texture1;
+
+    void main() {
+        FragColor = texture(texture1, TexCoord);
+    }
+)";
+
 const char* vertexShaderSource = R"(
     #version 330 core
     layout (location = 0) in vec3 aPos;
@@ -326,31 +352,19 @@ const char* axisFragmentShaderSource = R"(
     }
 )";
 
-const char* screenVertexShaderSource = R"(
-    #version 330 core
-    layout (location = 0) in vec2 aPos;
-    layout (location = 1) in vec2 aTexCoord;
+// 在初始化时创建矩形的顶点数据
+float screenVertices[] = {
+    // 位置           // 纹理坐标
+    -1.0f, -1.0f,    0.0f, 0.0f,
+     1.0f, -1.0f,    1.0f, 0.0f,
+     1.0f,  1.0f,    1.0f, 1.0f,
+    -1.0f,  1.0f,    0.0f, 1.0f
+};
 
-    out vec2 TexCoord;
-
-    void main() {
-        gl_Position = vec4(aPos, 0.0, 1.0);
-        TexCoord = aTexCoord;
-    }
-)";
-
-const char* screenFragmentShaderSource = R"(
-    #version 330 core
-    out vec4 FragColor;
-
-    in vec2 TexCoord;
-
-    uniform sampler2D texture1;
-
-    void main() {
-        FragColor = texture(texture1, TexCoord);
-    }
-)";
+unsigned int indices[] = {
+    0, 1, 2,
+    2, 3, 0
+};
 
 GLFWwindow* createWindow()
 {
@@ -453,50 +467,53 @@ int main()
     }
 
     glViewport(0, 0, WIDTH, HEIGHT);
-    // ++++++++++++++++++++++++++++++++++++++
+// ++++++++++++++++++++++++++++++++++++++
     // 创建和编译坐标轴着色器
     GLuint textureShaderProgram = createShaderProgram(screenVertexShaderSource, screenFragmentShaderSource);
     // 创建和编译坐标轴着色器
     GLuint axisShaderProgram = createShaderProgram(axisVertexShaderSource, axisFragmentShaderSource);
     // 创建和编译ball着色器
     GLuint shaderProgram = createShaderProgram(vertexShaderSource, fragmentShaderSource);
-    // =================================================================================
+
     // Create sphere vertices
     std::vector<float> vertices = getBallData(sectorCount,stackCount);
 // =================================================================================
-GLuint framebuffer;
-glGenFramebuffers(1, &framebuffer);
-glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    GLuint framebuffer;
+    glGenFramebuffers(1, &framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
-GLuint texture;
-glGenTextures(1, &texture);
-glBindTexture(GL_TEXTURE_2D, texture);
-glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH, HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH, HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
 
-if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-    std::cout << "Error: Framebuffer is not complete!" << std::endl;
-}
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        std::cout << "Error: Framebuffer is not complete!" << std::endl;
+    }
 
-glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
-// 创建并绑定 VAO
-GLuint textureVAO, textureVBO;
+GLuint textureVAO, textureVBO, textureEBO;
 glGenVertexArrays(1, &textureVAO);
 glGenBuffers(1, &textureVBO);
+glGenBuffers(1, &textureEBO);
+
 glBindVertexArray(textureVAO);
 glBindBuffer(GL_ARRAY_BUFFER, textureVBO);
-glBufferData(GL_ARRAY_BUFFER, sizeof(textureVertices), textureVertices, GL_STATIC_DRAW);
+glBufferData(GL_ARRAY_BUFFER, sizeof(screenVertices), screenVertices, GL_STATIC_DRAW);
+
+glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, textureEBO);
+glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
 glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 glEnableVertexAttribArray(0);
 glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 glEnableVertexAttribArray(1);
-// glBindBuffer(GL_ARRAY_BUFFER, 0);
-// glBindVertexArray(0);
-
 // =================================================================================
     // 创建和绑定VAO和VBO
     GLuint axisVAO, axisVBO;
@@ -509,7 +526,7 @@ glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
-// =================================================================================
+    // 创建和绑定VAO和VBO
     GLuint VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -522,18 +539,15 @@ glEnableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    while (!glfwWindowShouldClose(window)) {
-        processInput(window);
+// #########################################################################
+const bool _draw_screen = true;
 
-        // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        // glClear(GL_COLOR_BUFFER_BIT);
-// ====================================================================
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    if(_draw_screen){
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    }
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-// ====================================================================
 
-// ++++++++++++++++++++++++++++++++++++++
     // 绘制坐标轴
     glUseProgram(axisShaderProgram);
     glm::mat4 axisModel = glm::mat4(1.0f);
@@ -543,43 +557,60 @@ glEnableVertexAttribArray(1);
     glUniformMatrix4fv(glGetUniformLocation(axisShaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(axisView));
     glUniformMatrix4fv(glGetUniformLocation(axisShaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(axisProjection));
 
-    // glBindVertexArray(axisVAO);
-    // glDrawArrays(GL_LINES, 0, 6);
-    // glBindVertexArray(0);
-glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-glBindVertexArray(axisVAO);
-glDrawArrays(GL_LINES, 0, 6);
-glBindVertexArray(0);
-// ++++++++++++++++++++++++++++++++++++++
-        glUseProgram(shaderProgram);
-        glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 view = glm::lookAt(glm::vec3(5.0f, 5.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    if(_draw_screen){
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+        glBindVertexArray(axisVAO);
+        glDrawArrays(GL_LINES, 0, 6);
+        glBindVertexArray(0);
+    }else{
+        glBindVertexArray(axisVAO);
+        glDrawArrays(GL_LINES, 0, 6);
+        glBindVertexArray(0);
+    }
 
-        // glBindVertexArray(VAO);
-        // glDrawArrays(GL_POINTS, 0, vertices.size() / 3);
-        // glBindVertexArray(0);
-glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-glBindVertexArray(VAO);
-glDrawArrays(GL_POINTS, 0, vertices.size() / 3);
-glBindVertexArray(0);
-// 生成3D点云数据
-
-saveRenderbufferToPNG("filename.png", 800, 600);
-
-// ====================================================================
+    // 绘制ball
+    glUseProgram(shaderProgram);
+    glm::mat4 model = glm::mat4(1.0f);
+    glm::mat4 view = glm::lookAt(glm::vec3(5.0f, 5.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    if(_draw_screen){
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_POINTS, 0, vertices.size() / 3);
+        glBindVertexArray(0);
+        
+    }else{
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_POINTS, 0, vertices.size() / 3);
+        glBindVertexArray(0);
+    }
+saveRenderbufferToPNG("texture_render_to_texture.png", 800, 600);
     // 使用纹理渲染到屏幕上
-    glUseProgram(textureShaderProgram);
-    glBindVertexArray(textureVAO);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-// ====================================================================
-        glfwSwapBuffers(window);
+    if(_draw_screen){
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        //glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // 绑定纹理
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glUseProgram(textureShaderProgram);
+
+        // 设置纹理单元
+        glUniform1i(glGetUniformLocation(textureShaderProgram, "texture1"),0);
+        // 渲染矩形
+        glBindVertexArray(textureVAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    }
+
+    glfwSwapBuffers(window);
+
+    while (!glfwWindowShouldClose(window)) {
+        processInput(window);
         glfwPollEvents();
-        break;
     }
 
     // destory asix resource
