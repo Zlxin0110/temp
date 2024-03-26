@@ -153,3 +153,95 @@ saveRenderbufferToPNG("test2.png", WIDTH, HEIGHT);
     glfwTerminate();
     return 0;
 }
+
+
+============================
+std::vector<unsigned char> compressData(const std::vector<unsigned char>& data) {
+    // 压缩级别
+    int level = Z_DEFAULT_COMPRESSION;
+
+    // 分配足够的空间来存储压缩后的数据
+    uLongf compressedSize = compressBound(data.size());
+    std::vector<unsigned char> compressedData(compressedSize);
+
+    // 压缩数据
+    if (compress(compressedData.data(), &compressedSize, data.data(), data.size()) != Z_OK) {
+        std::cout << "Failed to compress data." << std::endl;
+        return std::vector<unsigned char>();
+    }
+
+    // 调整压缩后的数据大小
+    compressedData.resize(compressedSize);
+
+    return compressedData;
+}
+
+
+    
+    // 初始化ROS节点
+    ros::init(argc, argv, "texture_publisher");
+    ros::NodeHandle nh;
+
+
+    std::vector<unsigned char> pixels(WIDTH * HEIGHT * 4); // RGBA format
+    glReadPixels(0, 0, WIDTH, HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+
+    std::cout << "pixels.size() : " <<  pixels.size() << std::endl;
+    
+    std::vector<unsigned char> compressedPixels = compressData(pixels);
+    std::cout << "compressedPixels.size() : " <<  compressedPixels.size() << std::endl;
+    // 将压缩后的像素数据发布到ROS话题
+    ros::Publisher pub = nh.advertise<std_msgs::UInt8MultiArray>("compressed_texture_pixels", 1);
+
+    std_msgs::UInt8MultiArray msg;
+    msg.layout.dim.push_back(std_msgs::MultiArrayDimension());
+    msg.layout.dim[0].size = compressedPixels.size();
+    msg.layout.dim[0].stride = 1;
+    msg.layout.dim[0].label = "pixels";
+    msg.data = compressedPixels;
+    
+============================
+#include <zlib.h>
+std::vector<unsigned char> decompressData(const std::vector<unsigned char>& compressedData) {
+    // 分配足够的空间来存储解压缩后的数据
+    uLongf uncompressedSize = /* 您需要知道解压缩后的数据大小 */;
+    std::vector<unsigned char> uncompressedData(uncompressedSize);
+
+    // 解压缩数据
+    if (uncompress(uncompressedData.data(), &uncompressedSize, compressedData.data(), compressedData.size()) != Z_OK) {
+        ROS_ERROR("Failed to decompress data.");
+        return std::vector<unsigned char>();
+    }
+
+    // 调整解压缩后的数据大小
+    uncompressedData.resize(uncompressedSize);
+
+    return uncompressedData;
+}
+
+
+// ROS コールバック関数、受信したポイントクラウドデータを処理します
+void lidarCallback(const sensor_msgs::UInt8MultiArray::ConstPtr& msg) {
+    size_t dataSize = msg->data.size();
+    std::cout << "dataSize : " << dataSize << std::endl;
+
+    // 解压缩消息数据
+    std::vector<unsigned char> uncompressedData = decompressData(msg->data);
+    std::cout << "uncompressedData : " << uncompressedData << std::endl;
+}
+// メイン関数
+int main(int argc, char** argv) {
+    ros::init(argc, argv, "lidar_visualization_node");
+    ros::NodeHandle nh;
+
+    // 点群トピックを購読し、コールバック関数を設定します
+    ros::Subscriber lidar_sub = nh.subscribe("/compressed_texture_pixels", 1, lidarCallback);
+
+    // ROSメインループ
+    ros::spin();
+
+    // OpenGLスレッドの終了を待ちます
+    gl_thread.join();
+
+    return 0;
+}
