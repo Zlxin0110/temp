@@ -1,50 +1,45 @@
-glBegin、glVertex3d、glEndで点群が描画できます。
+void saveRenderbufferToPNG(const std::string& filename, int width, int height) {
+    std::vector<unsigned char> pixels(width * height * 4); // RGBA format
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 
-描画方法：
-            glColor3f(1.0, 1.0, 1.0);
-            glBegin(GL_POINTS);
-            for (const auto& point : cloud.points) {
-                //std::cout << "x: " << point.x << ",y: " << point.y << ",z: " << point.z << std::endl; 
-                glVertex3d(point.x, point.y, point.z);
-            }
-            glEnd();
+    png::image<png::rgba_pixel> image(width, height);
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            int index = (y * width + x) * 4;
+            image[y][x] = png::rgba_pixel(pixels[index], pixels[index + 1], pixels[index + 2], pixels[index + 3]);
+        }
+    }
+    image.write(filename);
+}
 
-また、検証のために4つの実験を行いました。
+// sudo apt-get update
+// sudo apt-get install libjpeg-dev
+void saveRenderbufferToJPEG(const std::string& filename, int width, int height) {
+    std::vector<unsigned char> pixels(width * height * 4); // RGBA format
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 
-試験１：トピックを購読せずに、点群を描画します
-結論：glBegin、glVertex3d、glEndで点群を描画できる。
+    cv::Mat image(height, width, CV_8UC4, pixels.data()); // Create OpenCV Mat from RGBA pixels
 
-試験２：トピックを購読し、コールバック関数内で描画します。
-結論：glBegin、glVertex3d、glEndは実行されますが、点群が描画されません（glutMainLoop()必須）
+    // OpenCV saves the image as BGR format by default, so we need to convert it to RGB
+    cv::cvtColor(image, image, cv::COLOR_RGBA2BGRA);
 
-試験３：ros::spin()をMainThreadで実行し、glutMainLoop()をSubThreadで実行します。
-結論：①点群が描画できます。
-      ②pcl::fromROSMsg(*msg, cloud)を使用すると、点群データの解析が便利になります。
-      ③glutPostRedisplay()を呼び出さないと、OpenGLに再描画が行われません。
+    // Save the image to a JPEG file
+    std::vector<int> compression_params;
+    compression_params.push_back(cv::IMWRITE_JPEG_QUALITY);
+    compression_params.push_back(100); // JPEG quality (0-100)
 
-試験４：ros::spin()をSubThreadで実行し、glutMainLoop()をMainThreadで実行する。
-結論：点群を描画できますが、SleepしないとlidarCallbackが呼び出されません。
+    cv::imwrite(filename, image, compression_params);
+}
+void savePixelsToBMP(const std::string& filename, int width, int height) {
+    std::vector<unsigned char> pixels(width * height * 4); // RGBA format
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+    cv::Mat image(height, width, CV_8UC4, pixels.data()); // Create OpenCV Mat from RGBA pixels
+    cv::cvtColor(image, image, cv::COLOR_RGBA2BGR);
+    
+    // Save the image to a BMP file
+    std::vector<int> compression_params;
+    compression_params.push_back(cv::IMWRITE_PXM_BINARY);
+    compression_params.push_back(1); // BMP format
 
-また、
-点群データの解析はPCL（Point Cloud Library）を使用すると簡単です。
-インストール：
-sudo apt-get install libpcl-dev
-CMakeLists.txtの設定：
-find_package(PCL 1.7 REQUIRED)
-
-include_directories(
-
-# include
-  ...
-  ${PCL_INCLUDE_DIRS}
-)
-
-add_definitions(${PCL_DEFINITIONS})
-
-target_link_libraries(main_c
-  ...
-  ${PCL_LIBRARIES}
-)
-
-
-コードは
+    cv::imwrite(filename, image, compression_params);
+}
