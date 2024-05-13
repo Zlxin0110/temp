@@ -19,3 +19,6 @@ git add my_folder/
 提交更改：  
 运行以下命令提交文件到Git仓库：  
 git commit -m "comment"  
+
+https://github.com/youli42/OpenGL-test
+https://1drv.ms/o/s!ApSK94F7N9HEgq87STs1n-QSwnJwww
