@@ -167,4 +167,100 @@ int main() {
 }
 
     
+    
+    
+    
+    using System;
+using System.Collections.Generic;
+using System.IO;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        // 指定Markdown文件的路径
+        string filePath = "path/to/your/file.md";
+
+        try
+        {
+            // 读取文件内容
+            string[] lines = File.ReadAllLines(filePath);
+
+            List<Entry> entries = new List<Entry>();
+            Entry currentEntry = null;
+
+            foreach (var line in lines)
+            {
+                // 判断是否是ID行 (#001)
+                if (line.StartsWith("#"))
+                {
+                    if (currentEntry != null)
+                    {
+                        entries.Add(currentEntry); // 添加上一个条目
+                    }
+                    currentEntry = new Entry();
+                    currentEntry.Id = line.Trim(); // 保存ID
+                }
+                // 判断是否是注释行
+                else if (!line.Contains("|") && !string.IsNullOrWhiteSpace(line))
+                {
+                    currentEntry.Comment = line.Trim(); // 保存注释
+                }
+                // 判断是否是字段行
+                else if (line.Contains("|"))
+                {
+                    var fields = line.Split('|', StringSplitOptions.RemoveEmptyEntries);
+                    for (int i = 0; i < fields.Length; i++)
+                    {
+                        fields[i] = fields[i].Trim();
+                    }
+                    currentEntry.Fields.Add(fields);
+                }
+            }
+
+            if (currentEntry != null)
+            {
+                entries.Add(currentEntry); // 添加最后一个条目
+            }
+
+            // 输出解析后的内容
+            foreach (var entry in entries)
+            {
+                Console.WriteLine($"ID: {entry.Id}");
+                Console.WriteLine($"Comment: {entry.Comment}");
+                foreach (var fieldSet in entry.Fields)
+                {
+                    Console.WriteLine(string.Join(", ", fieldSet));
+                }
+                Console.WriteLine();
+            }
+        }
+        catch (Exception ex)
+        {
+            // 处理异常情况
+            Console.WriteLine($"Error reading the file: {ex.Message}");
+        }
+    }
+}
+
+// 定义一个Entry类来保存每个条目的数据
+class Entry
+{
+    public string Id { get; set; }
+    public string Comment { get; set; }
+    public List<string[]> Fields { get; set; } = new List<string[]>();
+}
+代码说明：
+读取文件内容：使用 File.ReadAllLines(filePath) 方法逐行读取文件内容。
+定义 Entry 类：
+Id 保存条目 ID（例如 #001）。
+Comment 保存注释。
+Fields 是一个 List<string[]>，用于保存每行字段（用数组表示每行中的各个字段）。
+解析内容：
+遇到以 # 开头的行，识别为 ID 行。
+如果该行不是 ID 行且不包含 |，识别为注释行。
+含有 | 的行被识别为字段行，用 Split 方法分割字段，并存入 Fields 列表中。
+输出解析结果：将解析后的内容结构化输出。
+这个示例提供了一个基本的框架来解析你所描述的格式，你可以根据实际需求对其进行扩展。
+    
 
