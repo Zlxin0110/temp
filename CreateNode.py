@@ -15,10 +15,21 @@ class Program
             
             // 抽取括号内的内容
             List<string> extractedContents = ExtractContents(input);
-            Console.WriteLine("括号内的内容：");
+            Console.WriteLine("括号内的内容判断：");
             foreach (string content in extractedContents)
             {
-                Console.WriteLine(content);
+                if (IsNumeric(content))
+                {
+                    Console.WriteLine($"'{content}' 是数字");
+                }
+                else if (IsAlphabetic(content))
+                {
+                    Console.WriteLine($"'{content}' 是字母");
+                }
+                else
+                {
+                    Console.WriteLine($"'{content}' 包含其他字符");
+                }
             }
         }
         else
@@ -61,5 +72,29 @@ class Program
         }
 
         return contents;
+    }
+
+    static bool IsNumeric(string content)
+    {
+        foreach (char c in content)
+        {
+            if (!char.IsDigit(c))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static bool IsAlphabetic(string content)
+    {
+        foreach (char c in content)
+        {
+            if (!char.IsLetter(c))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 }
