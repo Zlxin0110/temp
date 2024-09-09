@@ -61,4 +61,44 @@
  例：旅行に行くきっかけが、まだなかった。
 「決定する」は、最終的に物事を確定する意味で使われます。
  例：旅行に行くことは、まだ決定していない。
+========================= 24.09.10 =========================
+dotnet new blazorwasm -o MyBlazorApp
+====>launch.json
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": ".NET Core Launch (Blazor WebAssembly)",
+        "type": "blazorwasm",
+        "request": "launch",
+        "preLaunchTask": "build",
+        // "program": "${workspaceFolder}/MyBlazorApp.Server/bin/Debug/net8.0/MyBlazorApp.dll",
+        // "cwd": "${workspaceFolder}/MyBlazorApp.Server",
+        "serverReadyAction": {
+          "action": "openExternally",
+          "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+        }
+      }
+    ]
+  }
+====> task.json
 
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "build",
+        "command": "dotnet",
+        "type": "shell",
+        "args": [
+          "build",
+          "${workspaceFolder}/MyBlazorApp.Server/MyBlazorApp.Server.csproj"
+        ],
+        "problemMatcher": "$msCompile"
+      }
+    ]
+  }
+
+====> Extension
+Microsoft Edge Tools for VS Code
+Microsoft.AspNetCore.Razor.VSCode.BlazorWasmDebuggingExtension
