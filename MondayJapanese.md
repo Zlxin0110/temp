@@ -118,9 +118,8 @@
 </ul>  </details>
 
 
-<table style="font-size: 16px;">
+<table style="font-size: 15px;">
   <tr>
-    <td ><strong> Date </strong></td>
     <td ><strong> 文法</strong></td>
     <td ><strong> 接続</strong></td>
     <td ><strong> 意味</strong></td>
@@ -128,7 +127,7 @@
     <td ><strong> 備考（そのほか） </strong></td>
   </tr>
 
-  <tr>2025/02/10</tr>
+  <tr><td rowspan="5"><strong>2025/02/03</strong></td></tr>
   <tr>
     <td > ～ゆえに </strong></td>
     <td > 接続</strong></td>
@@ -140,19 +139,17 @@
       </td>
   </tr>
 
-  <tr>2025/02/10</tr>
+  <tr><td rowspan="5"><strong>2025/02/10</strong></td></tr>
   <tr>
     <td > ～とあって </strong></td>
     <td > 接続</strong></td>
     <td >
-      ～という状況にあって<br>
-      ～という状況なので<br>
-      ～ので
+      ～という状況にあって / ～という状況なので/ ～ので
     </td>
     <td >●世界的な人気歌手のコンサートとあって、チケットが販売が3分で売り切れました。</td>
     <td >
-      滑舌「かつぜつ」が悪い⇒はっきりしゃべれない<br>
-      ペラペラしゃべる⇒流暢的に喋れる
+      ●滑舌「かつぜつ」が悪い⇒はっきりしゃべれない<br>
+      ●ペラペラしゃべる⇒流暢的に喋れる
       </td>
   </tr>
 </table>
