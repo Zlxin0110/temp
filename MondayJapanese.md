@@ -4,20 +4,24 @@
   <tr>
     <td><strong>2024/12/02</strong></td>
     <td>
-      <strong> 文法</strong> <br>
-      ～ようによっては ／ ～ようでは <br>
+      <p><strong>文法</strong>
+        ～ようによっては ／ ～ようでは
+      </p>
       
-      <strong> 接続</strong> <br>
+      <p><strong> 接続</strong>
+      </p>
     
-      <strong> 意味</strong> <br>
+      <p><strong> 意味</strong> 
         要看怎么… ／　取决于…（的方式）　／　根据…（的方式）<br>
-    
-      <strong> 例文 </strong> <br>
-        ●この状況も、見方ようによってはチャンスになる。<br>
-
-      <strong> その他 </strong> <br>
-        ●よいお年をお迎えください。 <br>
-
+      </p>
+      
+      <p><strong> 例文 </strong>
+        ●この状況も、見方ようによってはチャンスになる。
+      </p>
+        
+      <p><strong> その他 </strong>
+        ●よいお年をお迎えください。
+      </p>
   </tr>
 
 </table>
