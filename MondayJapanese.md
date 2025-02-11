@@ -22,8 +22,8 @@
       <p><strong> その他 </strong>
         ●よいお年をお迎えください。
       </p>
+    </td>
   </tr>
-
 </table>
 
 
