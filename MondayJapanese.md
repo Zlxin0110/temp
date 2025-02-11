@@ -2,7 +2,7 @@
 
 <table style="font-size: 14px;">
   <tr><td><strong>2024/12/02</strong></td></tr>
-  <tr>
+  <td>
     <strong> 文法</strong> <br>
       ～ようによっては ／ ～ようでは <br>
     
@@ -17,7 +17,7 @@
     <strong> その他 </strong> <br>
       ●よいお年をお迎えください。 <br>
 
-  </tr>
+  </td>
 
   <tr><td colspan="5"><strong>2024/12/09</strong></td></tr>
   <tr>
