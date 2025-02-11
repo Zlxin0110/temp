@@ -108,11 +108,11 @@
 </ul>  </details>
 
 <!-- ############### 2025/02/03 ############### -->
-<details> <summary>2025/02/03</summary>  <ul>
+<details> <summary>順接</summary>  <ul>
   
-| Date | 分類 | 文法 | 意味 | 例文 | 備考（そのほか） | 
-|----------|----------|----------|----------|----------|----------|
-| Row 1, Column 1 | Row 1, Column 2 | Row 1, Column 3 | Row 1, Column 1 | Row 1, Column 2 | Row 1, Column 3 |
-| Row 2, Column 1 | Row 2, Column 2 | Row 2, Column 3 | Row 1, Column 1 | Row 1, Column 2 | Row 1, Column 3 |
-| 2025/02/03 | 順接 | ～ゆえに | 〜のために | 貧しさゆえに一生懸命働いた |  |
+| Date | 文法 | 意味 | 例文 | 備考（そのほか） | 
+|----------|----------|----------|----------|----------|
+| Row 1, Column 1 | Row 1, Column 2 | Row 1, Column 3 | Row 1, <br>Column 1 | Row 1, Column 2 |
+| Row 2, Column 1 | Row 2, Column 2 | Row 2, Column 3 | Row 1, Column 1 | Row 1, Column 2 |
+| 2025/02/03 |  ～ゆえに | 〜のために | 貧しさゆえに一生懸命働いた |  |
 </ul>  </details>
