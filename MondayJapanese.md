@@ -127,7 +127,7 @@
     <td ><strong> 備考（そのほか） </strong></td>
   </tr>
 
-  <tr><td rowspan="5"><strong>2025/02/03</strong></td></tr>
+  <tr><td colspan="5"><strong>2025/02/03</strong></td></tr>
   <tr>
     <td > ～ゆえに </strong></td>
     <td > 接続</strong></td>
@@ -139,7 +139,7 @@
       </td>
   </tr>
 
-  <tr><td rowspan="5"><strong>2025/02/10</strong></td></tr>
+  <tr><td colspan="5"><strong>2025/02/10</strong></td></tr>
   <tr>
     <td > ～とあって </strong></td>
     <td > 接続</strong></td>
