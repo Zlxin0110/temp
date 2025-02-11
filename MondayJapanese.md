@@ -110,9 +110,9 @@
 <!-- ############### 2025/02/03 ############### -->
 <details> <summary>2025/02/03</summary>  <ul>
   
-| Header 1 | Header 2 | Header 3 |
-|----------|----------|----------|
-| Row 1, Column 1 | Row 1, Column 2 | Row 1, Column 3 |
-| Row 2, Column 1 | Row 2, Column 2 | Row 2, Column 3 |
-| Row 3, Column 1 | Row 3, Column 2 | Row 3, Column 3 
+| Date | 分類 | 文法 | 意味 | 例文 | 備考（そのほか） | 
+|----------|----------|----------|----------|----------|----------|
+| Row 1, Column 1 | Row 1, Column 2 | Row 1, Column 3 | Row 1, Column 1 | Row 1, Column 2 | Row 1, Column 3 |
+| Row 2, Column 1 | Row 2, Column 2 | Row 2, Column 3 | Row 1, Column 1 | Row 1, Column 2 | Row 1, Column 3 |
+| Row 3, Column 1 | Row 3, Column 2 | Row 3, Column 3 | Row 1, Column 1 | Row 1, Column 2 | Row 1, Column 3 |
 </ul>  </details>
