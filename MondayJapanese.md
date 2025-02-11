@@ -4,26 +4,23 @@
   <tr>
     <td><strong>2024/12/02</strong></td>
     <td>
-      <p><strong>文法</strong>
-        ～ようによっては ／ ～ようでは
-      </p>
+      <strong>文法</strong><br>
+      ～ようによっては ／ ～ようでは<br><br>
       
-      <p><strong> 接続</strong></p>
-    
-      <p><strong> 意味</strong> 
-        要看怎么… ／　取决于…（的方式）　／　根据…（的方式）
-      </p>
+      <strong>接続</strong><br><br>
       
-      <p><strong> 例文 </strong>
-        ●この状況も、見方ようによってはチャンスになる。
-      </p>
-        
-      <p><strong> その他 </strong>
-        ●よいお年をお迎えください。
-      </p>
-    </td> <!-- 闭合的 <td> 标签 -->
-  </tr> <!-- 闭合的 <tr> 标签 -->
+      <strong>意味</strong><br>
+      要看怎么… ／ 取决于…（的方式） ／ 根据…（的方式）<br><br>
+      
+      <strong>例文</strong><br>
+      ●この状況も、見方ようによってはチャンスになる。<br><br>
+      
+      <strong>その他</strong><br>
+      ●よいお年をお迎えください。<br>
+    </td>
+  </tr>
 </table>
+
 
 
 </ul>  </details>
