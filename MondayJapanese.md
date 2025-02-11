@@ -118,7 +118,7 @@
 </ul>  </details>
 
 
-<table style="font-size: 15px;">
+<table style="font-size: 14px; vertical-align: top; text-align: left;">
   <tr>
     <td ><strong> 文法</strong></td>
     <td ><strong> 接続</strong></td>
@@ -134,8 +134,8 @@
     <td > 〜のために</td>
     <td >●貧しさゆえに一生懸命働いた</td>
     <td >
-      市場「いちば」⇒具体的な場所がある<br>
-      市場「しじょう」＝概念的に
+      ●市場「いちば」⇒具体的な場所がある<br>
+      ●市場「しじょう」＝概念的に
       </td>
   </tr>
 
