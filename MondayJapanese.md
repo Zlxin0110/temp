@@ -3,23 +3,20 @@
 <table style="font-size: 14px;">
   <tr><td><strong>2024/12/02</strong></td></tr>
   <tr>
-    <td><strong> 文法</strong>
-      ～ようによっては ／ ～ようでは
-    </td>
-    <td><strong> 接続</strong>
-    </td>
-    <td><strong> 意味</strong>
-      要看怎么… ／　取决于…（的方式）　／　根据…（的方式）
-    </td>
-    <td >  </strong></td>
-    <td > 接続</td>
-    <td > 要看怎么… ／　取决于…（的方式）　／　根据…（的方式）</td>
-    <td><strong> 例文 </strong>
-      ●この状況も、見方ようによってはチャンスになる。
-    </td>
-    <td><strong> その他 </strong>
-      ●よいお年をお迎えください。
-    </td>
+    <strong> 文法</strong> <br>
+      ～ようによっては ／ ～ようでは <br>
+    
+    <strong> 接続</strong> <br>
+    
+    <strong> 意味</strong> <br>
+      要看怎么… ／　取决于…（的方式）　／　根据…（的方式）<br>
+    
+    <strong> 例文 </strong> <br>
+      ●この状況も、見方ようによってはチャンスになる。<br>
+
+    <strong> その他 </strong> <br>
+      ●よいお年をお迎えください。 <br>
+
   </tr>
 
   <tr><td colspan="5"><strong>2024/12/09</strong></td></tr>
