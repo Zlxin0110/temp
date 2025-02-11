@@ -116,3 +116,21 @@
 | 2025/02/10 | ～とあって | ～という状況にあって<br>～という状況なので<br>～ので | 世界的な人気歌手のコンサートとあって、チケットが販売が3分で売り切れました。 | 滑舌「かつぜつ」が悪い⇒はっきりしゃべれない<br>ペラペラしゃべる⇒流暢的に喋れる |
 | Row 2, Column 1 | Row 2, Column 2 | Row 2, Column 3 | Row 1, Column 1 | Row 1, Column 2 |
 </ul>  </details>
+
+
+<table>
+  <tr>
+    <td rowspan="2"><strong>行2，列1与行3，列1合并</strong></td>
+    <td>列2</td>
+    <td>列3</td>
+  </tr>
+  <tr>
+    <td>列2，列2内容</td>
+    <td>列2，列3内容</td>
+  </tr>
+  <tr>
+    <td><strong>行3，列1</strong></td>
+    <td colspan="2">列3，列2内容</td>
+  </tr>
+</table>
+
