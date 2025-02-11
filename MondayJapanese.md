@@ -120,17 +120,39 @@
 
 <table>
   <tr>
-    <td rowspan="2"><strong>行2，列1与行3，列1合并</strong></td>
-    <td>列2</td>
-    <td>列3</td>
+    <td ><strong> Date </strong></td>
+    <td ><strong> 文法</strong></td>
+    <td ><strong> 接続</strong></td>
+    <td ><strong> 意味</strong></td>
+    <td ><strong> 例文 </strong></td>
+    <td ><strong> 備考（そのほか） </strong></td>
   </tr>
   <tr>
-    <td>列2，列2内容</td>
-    <td>列2，列3内容</td>
+    <td > 2025/02/03 </strong></td>
+    <td > ～ゆえに </strong></td>
+    <td > 接続</strong></td>
+    <td > 〜のために</td>
+    <td >●貧しさゆえに一生懸命働いた</td>
+    <td >
+      市場「いちば」⇒具体的な場所がある
+      市場「しじょう」＝概念的に
+      </td>
   </tr>
+  
   <tr>
-    <td><strong>行3，列1</strong></td>
-    <td colspan="2">列3，列2内容</td>
+  ーーーーー
+    <td > 2025/02/10 </strong></td>
+    <td > ～とあって </strong></td>
+    <td > 接続</strong></td>
+    <td >
+      ～という状況にあって
+      ～という状況なので
+      ～ので</td>
+    <td >●世界的な人気歌手のコンサートとあって、チケットが販売が3分で売り切れました。</td>
+    <td >
+      滑舌「かつぜつ」が悪い⇒はっきりしゃべれない
+      ペラペラしゃべる⇒流暢的に喋れる
+      </td>
   </tr>
 </table>
 
