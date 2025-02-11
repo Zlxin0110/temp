@@ -1,37 +1,45 @@
-<!-- ############### 2024/12/02 ############### -->
-<details> <summary>2024/12/02</summary>  <ul>
-  
-  <li> <strong>～ようによっては／ようでは</strong>
-    <ul>
-      <li>意味：要看怎么… ／　取决于…（的方式）　／　根据…（的方式）</li>
-      <li>例文：この状況も、見方ようによってはチャンスになる。</li> 
-    </ul>
-  </li>
-  
-  <li> <strong>その他</strong>
-    <ul>
-      <li>よいお年をお迎えください。</li>
-    </ul>
-  </li>
+
+<details> <summary>順接</summary>  <ul>
+
+<table style="font-size: 14px; vertical-align: top; text-align: left;">
+  <tr>
+    <td ><strong> 文法</strong></td>
+    <td ><strong> 接続</strong></td>
+    <td ><strong> 意味</strong></td>
+    <td ><strong> 例文 </strong></td>
+    <td ><strong> 備考（そのほか） </strong></td>
+  </tr>
+
+  <tr><td colspan="5"><strong>2024/12/02</strong></td></tr>
+  <tr>
+    <td > ～ようによっては<br>～ようでは </strong></td>
+    <td > 接続</td>
+    <td > 要看怎么… ／　取决于…（的方式）　／　根据…（的方式）</td>
+    <td >●この状況も、見方ようによってはチャンスになる。</td>
+    <td >
+      ●よいお年をお迎えください。
+      </td>
+  </tr>
+
+  <tr><td colspan="5"><strong>2024/12/09</strong></td></tr>
+  <tr>
+    <td > ～をものともせずに </strong></td>
+    <td > 接続</td>
+    <td >
+      克服困难…　／　不顾…　／　不当回事
+    </td>
+    <td >●疲れをものともせずに、休日も出社しました。</td>
+    <td >
+      ●液体　落とす／入れる　ー＞　耳の中に薬を落とす／耳の中に薬を入れる<br>
+      ●体重が増えない　減る
+      </td>
+  </tr>
+</table>
+
 </ul>  </details>
 
-<!-- ############### 2024/12/09 ############### -->
-<details> <summary>2024/12/09</summary>  <ul>
-  
-  <li> <strong>～をものともせずに</strong>
-    <ul>
-      <li>意味：克服困难…　／　不顾…　／　不当回事</li>
-      <li>例文：疲れをものともせずに、休日も出社しました。</li> 
-    </ul>
-  </li>
-  
-  <li> <strong>その他</strong>
-    <ul>
-      <li>液体　落とす／入れる　ー＞　耳の中に薬を落とす　／　耳の中に薬を入れる　</li>
-      <li>体重が増えない　減る</li>
-    </ul>
-  </li>
-</ul>  </details>
+
+
 
 <!-- ############### 2024/12/16 ############### -->
 <details> <summary>2024/12/16</summary>  <ul>
@@ -107,7 +115,8 @@
   </li>
 </ul>  </details>
 
-<!-- ############### 2025/02/03 ############### -->
+
+
 <details> <summary>順接</summary>  <ul>
 
 <table style="font-size: 14px; vertical-align: top; text-align: left;">
