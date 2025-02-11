@@ -1,25 +1,29 @@
-<details> <summary>順接</summary>  <ul>
+<details>
+  <summary>順接</summary>
+  <ul>
+    <table style="font-size: 14px;">
+      <tr>
+        <td><strong>2024/12/02</strong></td>
+        <td>
+          <p><strong>文法</strong></p>
+          <p>～ようによっては ／ ～ようでは</p>
+          
+          <p><strong>接続</strong></p>
+          
+          <p><strong>意味</strong></p>
+          <p>要看怎么… ／ 取决于…（的方式） ／ 根据…（的方式）</p>
+          
+          <p><strong>例文</strong></p>
+          <p>●この状況も、見方ようによってはチャンスになる。</p>
+          
+          <p><strong>その他</strong></p>
+          <p>●よいお年をお迎えください。</p>
+        </td>
+      </tr>
+    </table>
+  </ul>
+</details>
 
-<table style="font-size: 14px;">
-  <tr>
-    <td><strong>2024/12/02</strong></td>
-    <td>
-      <strong>文法</strong><br>
-      ～ようによっては ／ ～ようでは<br><br>
-      
-      <strong>接続</strong><br><br>
-      
-      <strong>意味</strong><br>
-      要看怎么… ／ 取决于…（的方式） ／ 根据…（的方式）<br><br>
-      
-      <strong>例文</strong><br>
-      ●この状況も、見方ようによってはチャンスになる。<br><br>
-      
-      <strong>その他</strong><br>
-      ●よいお年をお迎えください。<br>
-    </td>
-  </tr>
-</table>
 
 
 
