@@ -1,13 +1,75 @@
+<details> <summary>順接</summary>  <ul>
+
+<table style="font-size: 14px;">
+  <tr><td><strong>2024/12/02</strong></td></tr>
+  <tr>
+    <td><strong> 文法</strong>
+      ～ようによっては ／ ～ようでは
+    </td>
+    <td><strong> 接続</strong>
+    </td>
+    <td><strong> 意味</strong>
+      要看怎么… ／　取决于…（的方式）　／　根据…（的方式）
+    </td>
+    <td >  </strong></td>
+    <td > 接続</td>
+    <td > 要看怎么… ／　取决于…（的方式）　／　根据…（的方式）</td>
+    <td><strong> 例文 </strong>
+      ●この状況も、見方ようによってはチャンスになる。
+    </td>
+    <td><strong> その他 </strong>
+      ●よいお年をお迎えください。
+    </td>
+  </tr>
+
+  <tr><td colspan="5"><strong>2024/12/09</strong></td></tr>
+  <tr>
+    <td> ～をものともせずに </strong></td>
+    <td> 接続</td>
+    <td>
+      克服困难…　／　不顾…　／　不当回事
+    </td>
+    <td>●疲れをものともせずに、休日も出社しました。</td>
+    <td>
+      ●液体　落とす／入れる　ー＞　耳の中に薬を落とす／耳の中に薬を入れる<br>
+      ●体重が増えない　減る
+      </td>
+  </tr>
+</table>
+
+
+  <tr><td colspan="5"><strong>2024/12/16</strong></td></tr>
+  <tr>
+    <td> ～に即して </strong></td>
+    <td> 接続</td>
+    <td>
+      ～に合わせて　／　按照…　／　依据…／　根据…　／　以…为基准
+    </td>
+    <td>●実状に即して考えよう</td>
+    <td>
+      ●液体　落とす／入れる　ー＞　耳の中に薬を落とす／耳の中に薬を入れる<br>
+      ●体重が増えない　減る
+      </td>
+  </tr>
+</table>
+</ul>  </details>
+
+
+
+
+
+
+
 
 <details> <summary>順接</summary>  <ul>
 
-<table style="font-size: 14px; vertical-align: top; text-align: left;">
+<table style="font-size: 14px;">
   <tr>
-    <td ><strong> 文法</strong></td>
-    <td ><strong> 接続</strong></td>
-    <td ><strong> 意味</strong></td>
-    <td ><strong> 例文 </strong></td>
-    <td ><strong> 備考（そのほか） </strong></td>
+    <td><strong> 文法</strong></td>
+    <td><strong> 接続</strong></td>
+    <td><strong> 意味</strong></td>
+    <td><strong> 例文 </strong></td>
+    <td><strong> 備考（そのほか） </strong></td>
   </tr>
 
   <tr><td colspan="5"><strong>2024/12/02</strong></td></tr>
@@ -23,19 +85,34 @@
 
   <tr><td colspan="5"><strong>2024/12/09</strong></td></tr>
   <tr>
-    <td > ～をものともせずに </strong></td>
-    <td > 接続</td>
-    <td >
+    <td> ～をものともせずに </strong></td>
+    <td> 接続</td>
+    <td>
       克服困难…　／　不顾…　／　不当回事
     </td>
-    <td >●疲れをものともせずに、休日も出社しました。</td>
-    <td >
+    <td>●疲れをものともせずに、休日も出社しました。</td>
+    <td>
       ●液体　落とす／入れる　ー＞　耳の中に薬を落とす／耳の中に薬を入れる<br>
       ●体重が増えない　減る
       </td>
   </tr>
 </table>
 
+
+  <tr><td colspan="5"><strong>2024/12/16</strong></td></tr>
+  <tr>
+    <td> ～に即して </strong></td>
+    <td> 接続</td>
+    <td>
+      ～に合わせて　／　按照…　／　依据…／　根据…　／　以…为基准
+    </td>
+    <td>●実状に即して考えよう</td>
+    <td>
+      ●液体　落とす／入れる　ー＞　耳の中に薬を落とす／耳の中に薬を入れる<br>
+      ●体重が増えない　減る
+      </td>
+  </tr>
+</table>
 </ul>  </details>
 
 
