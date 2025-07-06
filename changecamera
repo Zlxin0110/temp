@@ -1,84 +1,21 @@
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <iostream>
+●取る
+①取り返す　⇒
+②取り組み　⇒　やる
+③取り付ける　⇒　該当するところに部品を取り付ける。
+④取り戻す　⇒　大事な物を（自分に）戻す
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
-}
+●込む
+①思い込む　⇒　思い込む
+　例文：下林先生がいい先生と思い込んでいる。
+　　　　誰でも仕事を好きじゃないって思い込んでいる
+　　　　年齢が高いから仕事ができないと思い込むのは間違いだ。
+　　　　※思い込みがあったけど
+②持ち込み
+　社外の資料の持ち込みは、事前に許可が必要です。
+　飲食物の持ち込みは禁止されています。
 
-int main() {
-    // 初始化 GLFW
-    if (!glfwInit()) {
-        std::cerr << "Failed to initialize GLFW" << std::endl;
-        return -1;
-    }
+持ち込んでもいいですか
 
-    // 创建窗口
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Renderbuffer Triangle", nullptr, nullptr);
-    if (!window) {
-        std::cerr << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+③行列に割り込ん
+　彼が話している途中に、彼女が割り込んできた。
 
-    // 初始化 GLEW
-    if (glewInit() != GLEW_OK) {
-        std::cerr << "Failed to initialize GLEW" << std::endl;
-        return -1;
-    }
-
-    // 创建并绑定帧缓冲对象（FBO）
-    GLuint FBO;
-    glGenFramebuffers(1, &FBO);
-    glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-
-    // 创建并绑定渲染缓冲对象（Renderbuffer）
-    GLuint RBO;
-    glGenRenderbuffers(1, &RBO);
-    glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
-
-    // 检查帧缓冲完整性
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        std::cerr << "Framebuffer is not complete" << std::endl;
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        return -1;
-    }
-
-    // 设置顶点数据
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-         0.0f,  0.5f, 0.0f
-    };
-
-    // 创建并绑定顶点缓冲对象（VBO）
-    GLuint VBO;
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    // 绘制三角形
-    glViewport(0, 0, 800, 600); // 设置视口大小为 FBO 大小
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 0, nullptr);
-
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-
-    glDisableClientState(GL_VERTEX_ARRAY);
-
-    // 交换缓冲区
-    glfwSwapBuffers(window);
-
-    // 清理资源
-    glDeleteBuffers(1, &VBO);
-    glDeleteFramebuffers(1, &FBO);
-    glDeleteRenderbuffers(1, &RBO);
-    glfwTerminate();
-    return 0;
-}
