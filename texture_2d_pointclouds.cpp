@@ -1,379 +1,47 @@
-#include <iostream>
-#include <thread>
-#include <GL/glew.h>
-//#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <chrono>
-#include <vector>
-#include <png++/png.hpp>
-#include "shader.h"
-
-
-
-const char* vertexShaderSource = R"(
-    #version 330 core
-    layout (location = 0) in vec3 aPos;
-    layout (location = 1) in vec3 aColor;
-
-    out vec3 Color;
-    out vec2 TexCoord;
-
-    void main()
-    {
-        gl_Position = vec4(aPos, 1.0);
-        Color = aColor;
-        TexCoord = vec2((aPos.x + 1.0) / 2.0, 1.0 - (aPos.y + 1.0) / 2.0);
-    }
-)";
-
-
-const char* fragmentShaderSource = R"(
-    #version 330 core
-    in vec3 Color;
-    out vec4 FragColor;
-
-    void main()
-    {
-        FragColor = vec4(Color, 1.0);
-    }
-)";
-
-// 生成点云数据
-std::vector<float> generatePointCloud(int width, int height)
-{
-    std::vector<float> points;
-    for (int i = 0; i < width; ++i)
-    {
-        for (int j = 0; j < height; ++j)
-        {
-            // 生成随机颜色
-            float r = static_cast<float>(rand()) / RAND_MAX;
-            float g = static_cast<float>(rand()) / RAND_MAX;
-            float b = static_cast<float>(rand()) / RAND_MAX;
-            points.push_back((float)i / width * 2 - 1);   // x 坐标，将[0,1]范围映射到[-1,1]
-            points.push_back((float)j / height * 2 - 1);  // y 坐标，将[0,1]范围映射到[-1,1]
-            points.push_back(0.0f);               // z 坐标
-            points.push_back(r);                  // r 分量
-            points.push_back(g);                  // g 分量
-            points.push_back(b);                  // b 分量
-        }
-    }
-    return points;
-}
-
-int main()
-{
-    // 初始化GLFW
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    // 创建窗口
-    GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL", NULL, NULL);
-    if (window == NULL)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-
-    // 初始化GLEW
-    if (glewInit() != GLEW_OK)
-    {
-        std::cout << "Failed to initialize GLEW" << std::endl;
-        return -1;
-    }
-
-    // 创建顶点着色器
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-
-    // 创建片段着色器
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-
-    // 创建着色器程序
-    GLuint shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    // 生成点云数据
-    int textureWidth = 80;
-    int textureHeight = 60;
-    std::vector<float> points = generatePointCloud(textureWidth, textureHeight);
-
-    // 创建并绑定纹理
-    GLuint textureID;
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textureWidth, textureHeight, 0, GL_RGB, GL_FLOAT, points.data());
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    // 创建顶点数组对象（VAO）和顶点缓冲对象（VBO）
-    GLuint VAO, VBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-
-    // 绑定VAO和VBO
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * points.size(), points.data(), GL_STATIC_DRAW);
-
-    // 设置顶点属性指针
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    // 主循环
-    while (!glfwWindowShouldClose(window))
-    {
-        // 渲染
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // 使用着色器程序
-        glUseProgram(shaderProgram);
-
-        // 绘制点云
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_POINTS, 0, textureWidth * textureHeight);
-
-        // 交换缓冲区和检查事件
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
-
-    // 清理资源
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteProgram(shaderProgram);
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-    glDeleteTextures(1, &textureID);
-
-    // 终止GLFW
-    glfwTerminate();
-    return 0;
-}
-
-
-
-#include <vector>
-#include <cmath>
-
-std::vector<float> generateSpherePointCloud(int numPoints, float radius)
-{
-    std::vector<float> points;
-    for (int i = 0; i < numPoints; ++i)
-    {
-        float u = static_cast<float>(rand()) / RAND_MAX;  // 球面上的参数 u，范围[0,1]
-        float v = static_cast<float>(rand()) / RAND_MAX;  // 球面上的参数 v，范围[0,1]
-        float theta = 2.0f * 3.14159265359f * u;          // 绕 y 轴旋转角度，范围[0, 2π]
-        float phi = acos(2.0f * v - 1.0f);                 // 绕 x 轴旋转角度，范围[0, π]
-
-        float x = radius * sin(phi) * cos(theta);           // 根据球面参数计算球面上的点的坐标
-        float y = radius * sin(phi) * sin(theta);
-        float z = radius * cos(phi);
-
-        points.push_back(x);
-        points.push_back(y);
-        points.push_back(z);
-
-        // 使用固定颜色或者根据球面坐标计算颜色
-        points.push_back(0.0f); // r 分量
-        points.push_back(1.0f); // g 分量
-        points.push_back(0.0f); // b 分量
-    }
-    return points;
-}
-
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <iostream>
-
-// 坐标轴的顶点数据
-float axisVertices[] = {
-    0.0f, 0.0f, 0.0f,  // 原点
-    1.0f, 0.0f, 0.0f,  // X轴端点
-    0.0f, 0.0f, 0.0f,  // 原点
-    0.0f, 1.0f, 0.0f,  // Y轴端点
-    0.0f, 0.0f, 0.0f,  // 原点
-    0.0f, 0.0f, 1.0f   // Z轴端点
-};
-
-// 顶点着色器代码
-const char* vertexShaderSource = R"(
-    #version 330 core
-    layout (location = 0) in vec3 aPos;
-
-    uniform mat4 view;
-    uniform mat4 projection;
-
-    void main()
-    {
-        gl_Position = projection * view * vec4(aPos, 1.0);
-    }
-)";
-
-// 片段着色器代码
-const char* fragmentShaderSource = R"(
-    #version 330 core
-    out vec4 FragColor;
-
-    void main()
-    {
-        FragColor = vec4(1.0, 1.0, 1.0, 1.0); // 绘制为白色
-    }
-)";
-
-int main()
-{
-    // 初始化GLFW
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    // 创建窗口
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Coordinate Axes", NULL, NULL);
-    if (window == NULL)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-
-    // 初始化GLAD
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
-    }
-
-    // 创建和绑定VAO
-    GLuint VAO, VBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(axisVertices), axisVertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // 编译着色器程序
-    unsigned int vertexShader, fragmentShader, shaderProgram;
-    vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-    // 检查顶点着色器是否编译成功...
-
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-    // 检查片段着色器是否编译成功...
-
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-    // 检查着色器程序是否链接成功...
-
-    // 渲染循环
-    while (!glfwWindowShouldClose(window))
-    {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // 设置投影矩阵和视图矩阵
-        float aspectRatio = 800.0f / 600.0f;
-        float fov = 45.0f;
-        float nearPlane = 0.1f;
-        float farPlane = 100.0f;
-        float z = 3.0f;
-
-        float f = 1.0f / tan(fov * 0.5f * 3.14159265358979323846f / 180.0f);
-        float projectionMatrix[16] = {
-            f / aspectRatio, 0.0f, 0.0f, 0.0f,
-            0.0f, f, 0.0f, 0.0f,
-            0.0f, 0.0f, (farPlane + nearPlane) / (nearPlane - farPlane), -1.0f,
-            0.0f, 0.0f, (2.0f * farPlane * nearPlane) / (nearPlane - farPlane), 0.0f
-        };
-
-        float viewMatrix[16] = {
-            1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, -z, 1.0f
-        };
-
-        glUseProgram(shaderProgram);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, viewMatrix);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, projectionMatrix);
-
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_LINES, 0, 6);
-
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
-
-    // 清理
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-    glDeleteProgram(shaderProgram);
-
-    glfwTerminate();
-    return 0;
-}
-
-
-
-
-const char* fragmentShaderSource = R"(
-    #version 330 core
-    out vec4 FragColor;
-
-    void main()
-    {
-        if (gl_FragCoord.x < 400.0 && gl_FragCoord.y < 300.0)
-            FragColor = vec4(1.0, 0.0, 0.0, 1.0); // X轴设置为红色
-        else if (gl_FragCoord.x >= 400.0 && gl_FragCoord.y < 300.0)
-            FragColor = vec4(0.0, 1.0, 0.0, 1.0); // Y轴设置为绿色
-        else
-            FragColor = vec4(0.0, 0.0, 1.0, 1.0); // Z轴设置为蓝色
-    }
-)";
-
-
-
-#include <cmath>
-
-// 相机参数
-float cameraX = 0.0f;
-float cameraY = 0.0f;
-float cameraZ = 3.0f;
-
-// 相机旋转角度
-float angle = 45.0f;
-
-// 计算旋转后的相机位置
-float cameraXNew = cameraX * cos(angle) - cameraZ * sin(angle);
-float cameraZNew = cameraX * sin(angle) + cameraZ * cos(angle);
-
-// 构建视图矩阵
-float viewMatrix[16] = {
-    1.0f, 0.0f, 0.0f, -cameraXNew,
-    0.0f, 1.0f, 0.0f, -cameraY,
-    0.0f, 0.0f, 1.0f, -cameraZNew,
-    0.0f, 0.0f, 0.0f, 1.0f
-};
+日本語って、奥が深いんです！
+
+日本語って、言葉の裏側に「別の意味」が隠れてることがよくありますよね。それが**“含蓄”**っていうやつ。直球を投げずに変化球で話す。まるで言葉の忍者みたいです。
+
+例えば、飲み会に誘うとき、「明日来る？」って聞いて、「行けたら行く」って言われたら、外国人の私は「お、来るかも！」って期待しちゃいます。
+
+でも、多くの場合、日本人の心の中では「行かない」とか「行けない」っていう意味に変わってるんですよね。少なくとも「行く可能性はかなり低い」とか「まだハッキリしないけど、多分無理かな」っていうニュアンス。
+
+それは、相手にガッカリさせたり、恥をかかせたりしないように、直接「行かない」って言わない、優しい方法なんです。日本語の教科書には載ってないけど、毎日の会話ではすごく大事なサインだと思います。本当はちょっと都合が悪くても、それをストレートに言わないこともあるんです。
+
+“含蓄”については、このスピーチ原稿を作るときにもよ〜く分かりました。
+
+最初に書いた演説原稿は「日本と中国の職場文化の違い」っていうテーマだったんですけど、自分では「うーん、なんか面白くないな」って思ってたんです。
+
+で、坂上先生に原稿を直してもらった後、自分の正直な気持ちを伝えてみたんです。そしたら先生、「いい文章ですね。もしもっと面白いのが書けそうだったら、書いてみてください」って。私は、「あ、これって日本式の**“優しい否定”**かも！」ってピンときました。
+
+その後、たまたま他の人が提出した原稿のテーマをチラッと見たら、つい「それ、ちょっとつまらないかも」って言っちゃったんですよね。そしたら坂上先生が笑いながら、なんて言ったか覚えてないんですけど、**「言い方って大事だよね」**っていうニュアンスの言葉だったんです。
+
+それを聞いて、「あ…いま私、含蓄のないストレートパンチを放っちゃったな」って気づいたんです。なんか、面白いですよね。
+
+この経験を通して、私は日本語の奥深さ、そして日本人のコミュニケーションの仕方を、改めて肌で感じることができました。言葉の選び方一つで、相手に与える印象が全然違うって、本当に面白いですよね。
+
+最近は、「行けたら行く」って言われると、「あ、来ないってことね。了解！」って自然に受け止められるようになりました。私も少しずつ、“言葉の忍者”に近づいているのかもしれません！
+
+ご清聴、誠にありがとうございました。
+
+最後に、いつも助けてくださっているボランティアの皆さんに、感謝の気持ちを伝えたいと思います。
+
+==========================
+日本語って、奥が深いんです！
+
+日本語は、言葉の裏側に「別の意味」が隠れてることがよくありますよね。それを“含蓄”と言います。直球を投げずに変化球で話す。まるで言葉の忍者みたいです。
+
+例えば、飲み会に誘うとき、「明日来る？」と聞いて、「行けたら行く」と言われたら、外国人の私は「お、来るかも！」と期待してしまいます。
+
+でも、多くの場合、相手の心の中では「行かない」や「行けない」という意味に変わっているんですよね。少なくとも「行く可能性はかなり低い」や「まだハッキリしないけど、多分無理かな」というニュアンスです。
+
+それは、相手にガッカリさせたり、恥をかかせたりしないように、直接「行かない」と言わない、優しい方法なんです。日本語の教科書には載っていないけど、毎日の会話ではすごく大事なサインだと思います。本当はちょっと都合が悪くても、それをストレートに言わないこともあるんです。
+
+実は最初に書いた演説原稿は「日本と中国の職場文化の違い」というテーマでしたが、自分では「うーん、なんか面白くないな」と思っていたんです。
+
+そして、坂上先生に原稿を直してもらった後、自分の正直な気持ちを伝えてみたんです。そしたら先生は「いい文章ですね。もしもっと面白いのが書けそうだったら、書いてみてください」と。私は、「あ、これって日本式の“優しい否定”かも！」とピンときました。
+
+この経験を通して、私は日本語の奥深さ、そして日常のコミュニケーションの仕方を、改めて肌で感じることができました。言葉の選び方一つで、相手に与える印象が全然違うのは、本当に面白いですよね。
+
+最近は、「行けたら行く」と言われると、「あ、来ないってことね。了解！」と自然に受け止められるようになりました。私も少しずつ、“言葉の忍者”に近づいているのかもしれません！
+
